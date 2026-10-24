@@ -37,11 +37,13 @@
 					<div class="krds-badge-wrap" aria-label="근무 범례">
 						<span class="krds-badge bg-light-primary">오전</span>
 						<span class="krds-badge bg-light-point">오후</span>
+						<span class="krds-badge bg-light-success">종일</span>
 					</div>
 					<select class="krds-form-select small ssms-schedule__select" id="schedule_filter" title="근무 유형 선택">
 						<option value="">전체 근무</option>
 						<option value="AM">오전</option>
 						<option value="PM">오후</option>
+						<option value="DAY">종일</option>
 					</select>
 				</div>
 			</div>
@@ -121,6 +123,7 @@
 								<th scope="col">이름</th>
 								<th scope="col">오전</th>
 								<th scope="col">오후</th>
+								<th scope="col">종일</th>
 							</tr>
 							</thead>
 							<tbody id="members_body"></tbody>
@@ -178,7 +181,7 @@
 					</div>
 					<fieldset class="fieldset">
 						<legend id="unavailable_legend"></legend>
-						<p class="form-hint">근무에 들어갈 수 없는 날짜의 오전, 오후를 선택해 주세요. 주말과 공휴일은 제외됩니다.</p>
+						<p class="form-hint">근무에 들어갈 수 없는 날짜의 오전, 오후를 선택해 주세요. 금요일은 한 명이 종일 근무하므로 종일로 선택합니다. 주말과 공휴일은 제외됩니다.</p>
 						<!-- 날짜별 오전/오후 체크박스는 schedule.js에서 렌더링 -->
 						<div class="ssms-unavailable" id="unavailable_list"></div>
 					</fieldset>
@@ -230,7 +233,8 @@
 	- members: 투입 인원 이름 목록
 	- holidays: { "YYYY-MM-DD": "공휴일명" }
 	- unavailable: { 이름: ["YYYY-MM-DD_AM" | "YYYY-MM-DD_PM"] }
-	- schedule: { "YYYY-MM-DD": { "AM": 이름, "PM": 이름 } }
+	- unavailable 금요일: "YYYY-MM-DD_DAY"
+	- schedule: { "YYYY-MM-DD": { "AM": 이름, "PM": 이름 } }, 금요일은 { "DAY": 이름 }
 -->
 <script type="application/json" id="schedule_data">
 	{
@@ -267,7 +271,7 @@
 		},
 		"schedule": {
 			"2026-10-01": {"AM": "김민수", "PM": "최유진"},
-			"2026-10-02": {"AM": "이서연", "PM": "정하늘"},
+			"2026-10-02": {"DAY": "이서연"},
 			"2026-10-06": {"AM": "강도윤", "PM": "박지훈"},
 			"2026-10-07": {"AM": "김민수", "PM": "최유진"},
 			"2026-10-08": {"AM": "이서연", "PM": "정하늘"},
@@ -275,17 +279,17 @@
 			"2026-10-13": {"AM": "김민수", "PM": "최유진"},
 			"2026-10-14": {"AM": "이서연", "PM": "정하늘"},
 			"2026-10-15": {"AM": "박지훈", "PM": "강도윤"},
-			"2026-10-16": {"AM": "최유진", "PM": "김민수"},
+			"2026-10-16": {"DAY": "최유진"},
 			"2026-10-19": {"AM": "김민수", "PM": "최유진"},
 			"2026-10-20": {"AM": "이서연", "PM": "정하늘"},
 			"2026-10-21": {"AM": "박지훈", "PM": "강도윤"},
 			"2026-10-22": {"AM": "최유진", "PM": "김민수"},
-			"2026-10-23": {"AM": "정하늘", "PM": "이서연"},
+			"2026-10-23": {"DAY": "정하늘"},
 			"2026-10-26": {"AM": "이서연", "PM": "정하늘"},
 			"2026-10-27": {"AM": "박지훈", "PM": "강도윤"},
 			"2026-10-28": {"AM": "정하늘", "PM": "김민수"},
 			"2026-10-29": {"AM": "정하늘", "PM": "이서연"},
-			"2026-10-30": {"AM": "강도윤", "PM": "박지훈"}
+			"2026-10-30": {"DAY": "강도윤"}
 		}
 	}
 </script>

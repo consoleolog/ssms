@@ -1,12 +1,21 @@
 /*** * 전산근무표 자동 편성 * ***/
 (() => {
-  const HALVES = ["AM", "PM"];
-  const HALF_LABEL = { AM: "오전", PM: "오후" };
-  const HALF_BADGE = { AM: "bg-light-primary", PM: "bg-light-point" };
+  // 근무 칸: 월~목은 오전/오후, 금요일은 구분 없이 한 명(종일)
+  const SLOTS = ["AM", "PM", "DAY"];
+  const SLOT_LABEL = { AM: "오전", PM: "오후", DAY: "종일" };
+  const SLOT_BADGE = { AM: "bg-light-primary", PM: "bg-light-point", DAY: "bg-light-success" };
+  const SINGLE_SHIFT_WEEKDAYS = [5];
   // 무작위 편성을 여러 번 시도해 가장 공평한 결과를 고른다
   const TRY_COUNT = 300;
 
   const pad = (n) => String(n).padStart(2, "0");
+
+  const weekdayOf = (dateKey) => {
+    const [year, month, day] = dateKey.split("-").map(Number);
+    return new Date(year, month - 1, day).getDay();
+  };
+
+  const slotsOf = (dateKey) => (SINGLE_SHIFT_WEEKDAYS.includes(weekdayOf(dateKey)) ? ["DAY"] : ["AM", "PM"]);
 
   const shuffle = (list) => {
     const arr = [...list];
@@ -32,69 +41,76 @@
     return days;
   };
 
+  const countEmpty = (day) => Object.values(day).filter((name) => !name).length;
+
   /**
    * 1회 편성
    * - 후보가 적은(불가 인원이 많은) 칸부터 채운다
-   * - 총 근무 수 → 해당 시간대(오전/오후) 근무 수 → 연속 근무일 순으로 적은 사람을 고른다
+   * - 총 근무 수 → 같은 종류(오전/오후/종일) 근무 수 → 연속 근무일 순으로 적은 사람을 고른다
    * - 같은 날 오전, 오후를 한 사람이 모두 맡지 않는다
+   * - 종일(금요일)은 오전, 오후 중 하나라도 불가인 사람을 제외한다
    */
   const assignOnce = (workdays, members, unavailable) => {
     const blocked = new Set();
     members.forEach((name) => (unavailable[name] || []).forEach((slot) => blocked.add(`${name}|${slot}`)));
+    const isBlocked = (name, date, slot) =>
+      (slot === "DAY" ? SLOTS : [slot]).some((s) => blocked.has(`${name}|${date}_${s}`));
 
     const slots = [];
     workdays.forEach((date, dayIndex) => {
-      HALVES.forEach((half) => {
-        const candidates = members.filter((name) => !blocked.has(`${name}|${date}_${half}`));
-        slots.push({ dayIndex, half, candidates });
+      slotsOf(date).forEach((slot) => {
+        const candidates = members.filter((name) => !isBlocked(name, date, slot));
+        slots.push({ dayIndex, slot, candidates });
       });
     });
     // sort는 안정 정렬이므로 섞은 순서가 동점 칸 사이에서 유지된다
     const order = shuffle(slots).sort((a, b) => a.candidates.length - b.candidates.length);
 
-    const stats = Object.fromEntries(members.map((name) => [name, { total: 0, AM: 0, PM: 0 }]));
-    const days = workdays.map(() => ({ AM: null, PM: null }));
-    const worksOn = (dayIndex, name) => !!days[dayIndex] && (days[dayIndex].AM === name || days[dayIndex].PM === name);
+    const stats = Object.fromEntries(members.map((name) => [name, { total: 0, AM: 0, PM: 0, DAY: 0 }]));
+    const days = workdays.map((date) => Object.fromEntries(slotsOf(date).map((slot) => [slot, null])));
+    const worksOn = (dayIndex, name) => !!days[dayIndex] && Object.values(days[dayIndex]).includes(name);
 
-    order.forEach(({ dayIndex, half, candidates }) => {
-      const otherHalf = half === "AM" ? "PM" : "AM";
-      const pool = candidates.filter((name) => days[dayIndex][otherHalf] !== name);
+    order.forEach(({ dayIndex, slot, candidates }) => {
+      const pool = candidates.filter((name) => !worksOn(dayIndex, name));
       if (!pool.length) return;
 
       const cost = (name) => {
         const adjacent = Number(worksOn(dayIndex - 1, name)) + Number(worksOn(dayIndex + 1, name));
-        return stats[name].total * 100 + stats[name][half] * 10 + adjacent;
+        return stats[name].total * 100 + stats[name][slot] * 10 + adjacent;
       };
       const minCost = Math.min(...pool.map(cost));
       const name = pickRandom(pool.filter((n) => cost(n) === minCost));
 
-      days[dayIndex][half] = name;
+      days[dayIndex][slot] = name;
       stats[name].total += 1;
-      stats[name][half] += 1;
+      stats[name][slot] += 1;
     });
 
     return { days, stats };
   };
 
-  // 낮을수록 좋음: 미배정 > 총 근무 수 편차 > 오전/오후 편중 > 연속 근무
+  // 낮을수록 좋음: 미배정 > 총 근무 수 편차 > 종일(금요일) 편차 > 오전/오후 편중 > 연속 근무
   const scoreOf = ({ days, stats }, members) => {
-    const totals = members.map((name) => stats[name].total);
-    const unassigned = days.reduce((sum, day) => sum + HALVES.filter((half) => !day[half]).length, 0);
-    const range = Math.max(...totals) - Math.min(...totals);
+    const rangeOf = (key) => {
+      const values = members.map((name) => stats[name][key]);
+      return Math.max(...values) - Math.min(...values);
+    };
+    const unassigned = days.reduce((sum, day) => sum + countEmpty(day), 0);
     const halfGap = members.reduce((sum, name) => sum + Math.abs(stats[name].AM - stats[name].PM), 0);
     const streak = days.reduce((sum, day, i) => {
       if (!i) return sum;
-      const prev = days[i - 1];
-      return sum + HALVES.filter((half) => day[half] && (day[half] === prev.AM || day[half] === prev.PM)).length;
+      const prev = Object.values(days[i - 1]);
+      return sum + Object.values(day).filter((name) => name && prev.includes(name)).length;
     }, 0);
-    return unassigned * 1e6 + range * 1e4 + halfGap * 1e2 + streak;
+    return unassigned * 1e6 + rangeOf("total") * 1e4 + rangeOf("DAY") * 1e3 + halfGap * 1e2 + streak;
   };
 
   /**
    * 근무 자동 편성
    * @param {{ workdays: string[], members: string[], unavailable: Object<string, string[]> }} input
    *   unavailable: { 이름: ["YYYY-MM-DD_AM", "YYYY-MM-DD_PM", ...] }
-   * @returns {{ days: {AM: string|null, PM: string|null}[], stats: Object }} workdays와 같은 순서
+   * @returns {{ days: Object<string, string|null>[], stats: Object }} workdays와 같은 순서
+   *   days[i]: 월~목 { AM, PM }, 금요일 { DAY }
    */
   const assignDuties = ({ workdays, members, unavailable }) => {
     let best = null;
@@ -142,6 +158,11 @@
     filter: "",
   };
 
+  // 예전 데이터 보정: 금요일에 오전/오후로 저장된 근무는 종일 한 명으로 바꾼다
+  Object.entries(state.schedule).forEach(([key, duty]) => {
+    if (slotsOf(key)[0] === "DAY" && !("DAY" in duty)) state.schedule[key] = { DAY: duty.AM || duty.PM || null };
+  });
+
   let saveFailed = false;
   const save = () => {
     try {
@@ -165,12 +186,13 @@
   const renderDutyList = (dateKey) => {
     const duty = state.schedule[dateKey];
     if (!duty) return "";
-    const halves = HALVES.filter((half) => !state.filter || half === state.filter);
-    const items = halves
-      .map((half) => {
-        const name = duty[half];
-        const badge = name ? HALF_BADGE[half] : "bg-light-danger";
-        return `<li class="ssms-calendar__item"><span class="krds-badge ${badge}">${HALF_LABEL[half]}</span> ${name ? escapeHtml(name) : "미배정"}</li>`;
+    const slots = slotsOf(dateKey).filter((slot) => !state.filter || slot === state.filter);
+    if (!slots.length) return "";
+    const items = slots
+      .map((slot) => {
+        const name = duty[slot];
+        const badge = name ? SLOT_BADGE[slot] : "bg-light-danger";
+        return `<li class="ssms-calendar__item"><span class="krds-badge ${badge}">${SLOT_LABEL[slot]}</span> ${name ? escapeHtml(name) : "미배정"}</li>`;
       })
       .join("");
     return `<ul class="ssms-calendar__list">${items}</ul>`;
@@ -231,16 +253,16 @@
 
   /* 투입 인원 (표시 중인 달의 근무 횟수) */
   const renderMembers = () => {
-    const counts = Object.fromEntries(state.members.map((name) => [name, { AM: 0, PM: 0 }]));
+    const counts = Object.fromEntries(state.members.map((name) => [name, { AM: 0, PM: 0, DAY: 0 }]));
     currentWorkdays().forEach((key) => {
       const duty = state.schedule[key] || {};
-      HALVES.forEach((half) => {
-        if (counts[duty[half]]) counts[duty[half]][half] += 1;
+      slotsOf(key).forEach((slot) => {
+        if (counts[duty[slot]]) counts[duty[slot]][slot] += 1;
       });
     });
 
     $("member_count").textContent = `${state.members.length}명`;
-    $("members_caption").textContent = `${state.year}년 ${state.month}월 전산근무 투입 인원으로 이름, 오전 근무 횟수, 오후 근무 횟수로 구성되어 있습니다.`;
+    $("members_caption").textContent = `${state.year}년 ${state.month}월 전산근무 투입 인원으로 이름, 오전 근무 횟수, 오후 근무 횟수, 종일(금요일) 근무 횟수로 구성되어 있습니다.`;
     $("members_body").innerHTML = state.members.length
       ? state.members
           .map(
@@ -248,10 +270,11 @@
               <th scope="row">${escapeHtml(name)}</th>
               <td>${counts[name].AM}</td>
               <td>${counts[name].PM}</td>
+              <td>${counts[name].DAY}</td>
             </tr>`
           )
           .join("")
-      : `<tr><td colspan="3">등록된 투입 인원이 없습니다.</td></tr>`;
+      : `<tr><td colspan="4">등록된 투입 인원이 없습니다.</td></tr>`;
   };
 
   /* 공휴일 설정 (표시 중인 달의 공휴일 목록) */
@@ -397,7 +420,7 @@
     save();
     render();
 
-    const unassigned = days.reduce((sum, day) => sum + HALVES.filter((half) => !day[half]).length, 0);
+    const unassigned = days.reduce((sum, day) => sum + countEmpty(day), 0);
     announce(`${state.year}년 ${state.month}월 근무를 자동 편성했습니다.${unassigned ? ` 미배정 ${unassigned}건이 있습니다.` : ""}`);
   });
 
@@ -414,14 +437,18 @@
         const [, month, day] = key.split("-").map(Number);
         const weekday = WEEKDAYS[new Date(state.year, month - 1, day).getDay()];
         const id = key.replace(/-/g, "");
-        const chips = HALVES.map((half) => {
-          const value = `${key}_${half}`;
-          const inputId = `chk_unavailable_${id}_${half.toLowerCase()}`;
-          return `<div class="krds-form-chip small">
-            <input type="checkbox" class="checkbox" id="${inputId}" name="unavailable" value="${value}"${selected.has(value) ? " checked" : ""}>
-            <label class="krds-form-chip-outline" for="${inputId}">${HALF_LABEL[half]}</label>
-          </div>`;
-        }).join("");
+        const chips = slotsOf(key)
+          .map((slot) => {
+            const value = `${key}_${slot}`;
+            const inputId = `chk_unavailable_${id}_${slot.toLowerCase()}`;
+            // 종일은 예전에 오전/오후로 저장한 불가일도 선택된 것으로 본다
+            const checked = (slot === "DAY" ? SLOTS : [slot]).some((s) => selected.has(`${key}_${s}`));
+            return `<div class="krds-form-chip small">
+              <input type="checkbox" class="checkbox" id="${inputId}" name="unavailable" value="${value}"${checked ? " checked" : ""}>
+              <label class="krds-form-chip-outline" for="${inputId}">${SLOT_LABEL[slot]}</label>
+            </div>`;
+          })
+          .join("");
         return `<div class="ssms-unavailable__row" role="group" aria-labelledby="unavailable_date_${id}">
           <span class="ssms-unavailable__date" id="unavailable_date_${id}">${month}월 ${day}일 (${weekday})</span>
           <div class="krds-check-area">${chips}</div>
@@ -520,8 +547,8 @@
       delete state.unavailable[from];
     }
     Object.values(state.schedule).forEach((duty) => {
-      HALVES.forEach((half) => {
-        if (duty[half] === from) duty[half] = to;
+      SLOTS.forEach((slot) => {
+        if (duty[slot] === from) duty[slot] = to;
       });
     });
   };
