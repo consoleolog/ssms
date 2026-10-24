@@ -15,7 +15,6 @@
 			<!-- 페이지 제목 -->
 			<div class="ssms-schedule__header">
 				<h2 class="ssms-schedule__title">전산근무표</h2>
-				<button type="button" class="krds-btn medium primary" id="btn_auto_assign">근무 자동 편성</button>
 			</div>
 			<!-- //페이지 제목 -->
 
@@ -33,18 +32,16 @@
 					</button>
 					<button type="button" class="krds-btn small tertiary" id="btn_today">오늘</button>
 				</div>
-				<div class="ssms-schedule__filter">
+				<div class="ssms-schedule__actions">
 					<div class="krds-badge-wrap" aria-label="근무 범례">
 						<span class="krds-badge bg-light-primary">오전</span>
 						<span class="krds-badge bg-light-point">오후</span>
 						<span class="krds-badge bg-light-success">종일</span>
 					</div>
-					<select class="krds-form-select small ssms-schedule__select" id="schedule_filter" title="근무 유형 선택">
-						<option value="">전체 근무</option>
-						<option value="AM">오전</option>
-						<option value="PM">오후</option>
-						<option value="DAY">종일</option>
-					</select>
+					<button type="button" class="krds-btn medium secondary" id="btn_auto_assign">
+						<i class="svg-icon ico-refresh"></i>
+						자동 편성
+					</button>
 				</div>
 			</div>
 			<!-- //달력 툴바 -->

@@ -9,7 +9,7 @@
 .ssms-schedule__header,
 .ssms-schedule__toolbar,
 .ssms-schedule__nav,
-.ssms-schedule__filter {
+.ssms-schedule__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -25,9 +25,6 @@
 }
 .ssms-schedule__month {
   font-size: var(--krds-pc-font-size-heading-small);
-}
-.ssms-schedule__select {
-  width: 16rem;
 }
 .ssms-schedule__body {
   display: flex;

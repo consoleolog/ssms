@@ -155,7 +155,6 @@
     holidays: stored?.holidays || seed.holidays || {},
     unavailable: stored?.unavailable || seed.unavailable || {},
     schedule: stored?.schedule || seed.schedule || {},
-    filter: "",
   };
 
   // 예전 데이터 보정: 금요일에 오전/오후로 저장된 근무는 종일 한 명으로 바꾼다
@@ -186,9 +185,7 @@
   const renderDutyList = (dateKey) => {
     const duty = state.schedule[dateKey];
     if (!duty) return "";
-    const slots = slotsOf(dateKey).filter((slot) => !state.filter || slot === state.filter);
-    if (!slots.length) return "";
-    const items = slots
+    const items = slotsOf(dateKey)
       .map((slot) => {
         const name = duty[slot];
         const badge = name ? SLOT_BADGE[slot] : "bg-light-danger";
@@ -327,10 +324,6 @@
     state.year = today.getFullYear();
     state.month = today.getMonth() + 1;
     render();
-  });
-  $("schedule_filter")?.addEventListener("change", (event) => {
-    state.filter = event.target.value;
-    renderCalendar();
   });
 
   const status = $("schedule_status");
