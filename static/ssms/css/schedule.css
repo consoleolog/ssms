@@ -1,0 +1,84 @@
+@charset "UTF-8";
+/* 전산근무표 일정 - KRDS로 표현할 수 없는 레이아웃만 정의 */
+
+/* 페이지 */
+.ssms-schedule {
+  padding-top: var(--krds-padding-8);
+  padding-bottom: var(--krds-padding-8);
+}
+.ssms-schedule__header,
+.ssms-schedule__toolbar,
+.ssms-schedule__nav,
+.ssms-schedule__filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--krds-gap-3);
+}
+.ssms-schedule__header,
+.ssms-schedule__toolbar {
+  justify-content: space-between;
+  margin-bottom: var(--krds-gap-5);
+}
+.ssms-schedule__title {
+  font-size: var(--krds-pc-font-size-heading-large);
+}
+.ssms-schedule__month {
+  font-size: var(--krds-pc-font-size-heading-small);
+}
+.ssms-schedule__select {
+  width: 16rem;
+}
+
+/* 달력 (KRDS 표 .krds-table-wrap .tbl.data 확장) */
+.ssms-calendar {
+  --krds-table--data-thead-th-padding-sides: var(--krds-padding-4);
+  --krds-table--data-tbody-padding: var(--krds-padding-3);
+  --krds-table--data-tbody-padding-sides: var(--krds-padding-3);
+}
+.ssms-calendar .tbl {
+  min-width: 84rem;
+}
+/* KRDS 표의 vertical-align: middle 보다 우선하기 위해 상위 선택자 사용 */
+.ssms-calendar .tbl.data .ssms-calendar__cell {
+  height: 12rem;
+  vertical-align: top;
+  border-right: var(--krds-table--data-border-width) solid var(--krds-table--data-tbody-color-divider);
+}
+.ssms-calendar__cell--holiday .ssms-calendar__date {
+  color: var(--krds-light-color-text-danger);
+}
+.ssms-calendar__cell--saturday .ssms-calendar__date {
+  color: var(--krds-light-color-text-information);
+}
+.ssms-calendar__cell--other-month .ssms-calendar__date {
+  color: var(--krds-light-color-text-disabled);
+}
+.ssms-calendar .tbl.data .ssms-calendar__cell--today {
+  background-color: var(--krds-light-color-surface-primary-subtler);
+}
+.ssms-calendar__head {
+  display: flex;
+  align-items: center;
+  gap: var(--krds-gap-2);
+  margin-bottom: var(--krds-gap-2);
+}
+.ssms-calendar__date {
+  font-family: inherit;
+  font-weight: var(--krds-font-weight-bold);
+  color: var(--krds-light-color-text-bolder);
+}
+.ssms-calendar__holiday {
+  font-size: var(--krds-pc-font-size-label-xsmall);
+  color: var(--krds-light-color-text-danger);
+}
+.ssms-calendar__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--krds-gap-1);
+}
+.ssms-calendar__item {
+  display: flex;
+  align-items: center;
+  gap: var(--krds-gap-2);
+}

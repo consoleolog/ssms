@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>전산근무표 일정 | SSMS</title>
+	<link rel="stylesheet" href="../../krds/resources/css/component/output.css">
+	<link rel="stylesheet" href="../css/font.css">
+	<link rel="stylesheet" href="../css/schedule.css">
+</head>
+<body>
+<div id="wrap">
+	<main id="container">
+		<div class="inner ssms-schedule">
+			<!-- 페이지 제목 -->
+			<div class="ssms-schedule__header">
+				<h2 class="ssms-schedule__title">전산근무표</h2>
+				<button type="button" class="krds-btn medium primary">근무 등록</button>
+			</div>
+			<!-- //페이지 제목 -->
+
+			<!-- 달력 툴바 -->
+			<div class="ssms-schedule__toolbar">
+				<div class="ssms-schedule__nav">
+					<button type="button" class="krds-btn medium icon border">
+						<span class="sr-only">이전 달</span>
+						<i class="svg-icon ico-angle left"></i>
+					</button>
+					<h3 class="ssms-schedule__month" id="schedule_month">2026년 10월</h3>
+					<button type="button" class="krds-btn medium icon border">
+						<span class="sr-only">다음 달</span>
+						<i class="svg-icon ico-angle right"></i>
+					</button>
+					<button type="button" class="krds-btn small tertiary">오늘</button>
+				</div>
+				<div class="ssms-schedule__filter">
+					<div class="krds-badge-wrap" aria-label="근무 유형 범례">
+					<span class="krds-badge bg-light-primary">주간</span>
+					<span class="krds-badge bg-light-point">야간</span>
+					<span class="krds-badge bg-light-warning">당직</span>
+					<span class="krds-badge bg-light-gray">휴가</span>
+					</div>
+					<select class="krds-form-select small ssms-schedule__select" title="근무 유형 선택">
+						<option value="">전체 근무</option>
+						<option value="day">주간</option>
+						<option value="night">야간</option>
+						<option value="duty">당직</option>
+						<option value="leave">휴가</option>
+					</select>
+				</div>
+			</div>
+			<!-- //달력 툴바 -->
+
+			<!-- 달력 -->
+			<div class="krds-table-wrap scroll ssms-calendar">
+				<table class="tbl data">
+					<caption class="sr-only">2026년 10월 전산근무표로 일요일부터 토요일까지 날짜별 근무 유형과 근무자로 구성되어 있습니다.</caption>
+					<thead>
+					<tr>
+							<th scope="col">일</th>
+							<th scope="col">월</th>
+							<th scope="col">화</th>
+							<th scope="col">수</th>
+							<th scope="col">목</th>
+							<th scope="col">금</th>
+							<th scope="col">토</th>
+					</tr>
+					</thead>
+					<tbody>
+							<tr>
+								<td class="ssms-calendar__cell ssms-calendar__cell--other-month ssms-calendar__cell--holiday">
+									<div class="ssms-calendar__head">
+										<span class="ssms-calendar__date"><span class="sr-only">9월 </span>27</span>
+									</div>
+								</td>
+								<td class="ssms-calendar__cell ssms-calendar__cell--other-month">
+									<div class="ssms-calendar__head">
+										<span class="ssms-calendar__date"><span class="sr-only">9월 </span>28</span>
+									</div>
+								</td>
+								<td class="ssms-calendar__cell ssms-calendar__cell--other-month">
+									<div class="ssms-calendar__head">
+										<span class="ssms-calendar__date"><span class="sr-only">9월 </span>29</span>
+									</div>
+								</td>
+								<td class="ssms-calendar__cell ssms-calendar__cell--other-month">
+									<div class="ssms-calendar__head">
+										<span class="ssms-calendar__date"><span class="sr-only">9월 </span>30</span>
+									</div>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 1일 목요일 근무 상세보기">1</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 김민수</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 최유진</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 2일 금요일 근무 상세보기">2</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 이서연</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 정하늘</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 3일 토요일 근무 상세보기">3</button>
+										<span class="ssms-calendar__holiday">개천절</span>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 박지훈</li>
+									</ul>
+								</td>
+							</tr>
+							<tr>
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 4일 일요일 근무 상세보기">4</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 최유진</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 5일 월요일 근무 상세보기">5</button>
+										<span class="ssms-calendar__holiday">대체공휴일</span>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 정하늘</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 6일 화요일 근무 상세보기">6</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 강도윤</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 박지훈</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 7일 수요일 근무 상세보기">7</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 김민수</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 최유진</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 8일 목요일 근무 상세보기">8</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 이서연</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 정하늘</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 9일 금요일 근무 상세보기">9</button>
+										<span class="ssms-calendar__holiday">한글날</span>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 박지훈</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell ssms-calendar__cell--saturday">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 10일 토요일 근무 상세보기">10</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 최유진</li>
+									</ul>
+								</td>
+							</tr>
+							<tr>
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 11일 일요일 근무 상세보기">11</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 정하늘</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 12일 월요일 근무 상세보기">12</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 강도윤</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 박지훈</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 13일 화요일 근무 상세보기">13</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 김민수</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 최유진</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 14일 수요일 근무 상세보기">14</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 이서연</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 정하늘</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">휴가</span> 박지훈</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 15일 목요일 근무 상세보기">15</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 박지훈</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 강도윤</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">휴가</span> 최유진</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 16일 금요일 근무 상세보기">16</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 최유진</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 김민수</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell ssms-calendar__cell--saturday">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 17일 토요일 근무 상세보기">17</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 정하늘</li>
+									</ul>
+								</td>
+							</tr>
+							<tr>
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 18일 일요일 근무 상세보기">18</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 강도윤</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 19일 월요일 근무 상세보기">19</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 김민수</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 최유진</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 20일 화요일 근무 상세보기">20</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 이서연</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 정하늘</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 21일 수요일 근무 상세보기">21</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 박지훈</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 강도윤</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 22일 목요일 근무 상세보기">22</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 최유진</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 김민수</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 23일 금요일 근무 상세보기">23</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 정하늘</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 이서연</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell ssms-calendar__cell--saturday ssms-calendar__cell--today" aria-current="date">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 24일 토요일 근무 상세보기">24</button>
+										<span class="krds-badge bg-primary">오늘</span>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 강도윤</li>
+									</ul>
+								</td>
+							</tr>
+							<tr>
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 25일 일요일 근무 상세보기">25</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 김민수</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 26일 월요일 근무 상세보기">26</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 이서연</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 정하늘</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 27일 화요일 근무 상세보기">27</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 박지훈</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 강도윤</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">휴가</span> 최유진</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 28일 수요일 근무 상세보기">28</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 최유진</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 김민수</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 29일 목요일 근무 상세보기">29</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 정하늘</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 이서연</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 30일 금요일 근무 상세보기">30</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">주간</span> 강도윤</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">야간</span> 박지훈</li>
+									</ul>
+								</td>
+								<td class="ssms-calendar__cell ssms-calendar__cell--saturday">
+									<div class="ssms-calendar__head">
+										<button type="button" class="ssms-calendar__date open-modal" data-target="modal_duty_detail" aria-label="2026년 10월 31일 토요일 근무 상세보기">31</button>
+									</div>
+									<ul class="ssms-calendar__list">
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-warning">당직</span> 김민수</li>
+									</ul>
+								</td>
+							</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- //달력 -->
+		</div>
+	</main>
+</div>
+
+<!-- 근무 상세 모달 -->
+<section id="modal_duty_detail" class="krds-modal fade" role="dialog" aria-labelledby="tit_modal_duty_detail">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 id="tit_modal_duty_detail" class="modal-title">2026년 10월 23일 (금) 근무</h2>
+			</div>
+			<div class="modal-conts">
+				<div class="conts-area">
+					<div class="krds-table-wrap">
+						<table class="tbl data">
+							<caption class="sr-only">2026년 10월 23일 근무 유형, 근무자, 근무 시간으로 구성되어 있습니다.</caption>
+							<thead>
+							<tr>
+								<th scope="col">근무 유형</th>
+								<th scope="col">근무자</th>
+								<th scope="col">근무 시간</th>
+							</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><span class="krds-badge bg-light-primary">주간</span></td>
+									<td>정하늘</td>
+									<td>09:00 ~ 18:00</td>
+								</tr>
+								<tr>
+									<td><span class="krds-badge bg-light-point">야간</span></td>
+									<td>이서연</td>
+									<td>18:00 ~ 익일 09:00</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="modal-btn btn-wrap">
+				<button type="button" class="krds-btn medium tertiary close-modal">닫기</button>
+				<button type="button" class="krds-btn medium primary close-modal">근무 수정</button>
+			</div>
+			<button type="button" class="krds-btn medium icon btn-close close-modal">
+				<span class="sr-only">닫기</span>
+				<i class="svg-icon ico-popup-close"></i>
+			</button>
+		</div>
+	</div>
+	<div class="modal-back"></div>
+</section>
+<!-- //근무 상세 모달 -->
+
+<script src="../../krds/resources/js/component/ui-script.js"></script>
+</body>
+</html>
