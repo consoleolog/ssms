@@ -133,7 +133,7 @@
     if (!S.members.length) return say("투입 인원을 먼저 등록해 주세요.");
     const days = workdays(), res = assign(days);
     days.forEach((k, i) => (S.schedule[k] = res[i]));
-    save(); render();
+    save(); render(); say(""); // 이전 안내 문구가 남지 않도록 비운다
   };
   $("btn_auto").onclick = (e) => (workdays().some((k) => S.schedule[k])
     ? confirmModal("근무 자동 편성", `${Y}년 ${M}월에 이미 편성된 근무가 있습니다. 다시 편성하면 직접 수정한 근무를 포함해 모두 바뀌며 되돌릴 수 없습니다.`, "다시 편성", e.currentTarget, runAuto)
