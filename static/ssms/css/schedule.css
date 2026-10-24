@@ -29,6 +29,45 @@
 .ssms-schedule__select {
   width: 16rem;
 }
+.ssms-schedule__body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--krds-gap-5);
+}
+.ssms-schedule__calendar {
+  flex: 1;
+  min-width: 0;
+}
+.ssms-schedule__aside {
+  flex-shrink: 0;
+  width: 24rem;
+}
+.ssms-schedule__subtitle {
+  display: flex;
+  align-items: center;
+  gap: var(--krds-gap-2);
+  margin-bottom: var(--krds-gap-3);
+  font-size: var(--krds-pc-font-size-heading-xsmall);
+}
+@media (max-width: 1023px) {
+  .ssms-schedule__body {
+    flex-direction: column;
+  }
+  .ssms-schedule__aside {
+    width: 100%;
+  }
+}
+
+/* 투입 인원 (KRDS 표 확장) */
+.ssms-members {
+  --krds-table--data-thead-th-padding-sides: var(--krds-padding-4);
+  --krds-table--data-tbody-padding: var(--krds-padding-3);
+  --krds-table--data-tbody-padding-sides: var(--krds-padding-4);
+}
+/* KRDS 모바일 표 최소 너비(73.2rem) 해제 - 3열 표라 가로 스크롤 불필요 */
+.ssms-members .tbl {
+  min-width: 100%;
+}
 
 /* 달력 (KRDS 표 .krds-table-wrap .tbl.data 확장) */
 .ssms-calendar {
@@ -64,7 +103,6 @@
   margin-bottom: var(--krds-gap-2);
 }
 .ssms-calendar__date {
-  font-family: inherit;
   font-weight: var(--krds-font-weight-bold);
   color: var(--krds-light-color-text-bolder);
 }
