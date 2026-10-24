@@ -198,6 +198,33 @@
 </section>
 <!-- //근무 불가일 등록 모달 -->
 
+<!-- 근무 수정 모달 -->
+<section id="modal_duty_edit" class="krds-modal fade" role="dialog" aria-labelledby="tit_modal_duty_edit">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 id="tit_modal_duty_edit" class="modal-title">근무 수정</h2>
+			</div>
+			<div class="modal-conts">
+				<div class="conts-area">
+					<!-- 달력에서 누른 날짜의 근무 칸(월~목: 오전/오후, 금: 종일)은 schedule.js에서 렌더링 -->
+					<div class="fieldset" id="duty_slots"></div>
+				</div>
+			</div>
+			<div class="modal-btn btn-wrap">
+				<button type="button" class="krds-btn medium tertiary close-modal">취소</button>
+				<button type="button" class="krds-btn medium primary close-modal" id="btn_duty_save">저장</button>
+			</div>
+			<button type="button" class="krds-btn medium icon btn-close close-modal">
+				<span class="sr-only">닫기</span>
+				<i class="svg-icon ico-popup-close"></i>
+			</button>
+		</div>
+	</div>
+	<div class="modal-back"></div>
+</section>
+<!-- //근무 수정 모달 -->
+
 <!-- 투입 인원 삭제 확인 모달 -->
 <section id="modal_member_delete" class="krds-modal fade" role="dialog" aria-labelledby="tit_modal_member_delete">
 	<div class="modal-dialog modal-sm">

@@ -187,3 +187,15 @@
   justify-content: flex-end;
   gap: var(--krds-gap-2);
 }
+
+/* 근무 수정: 근무일 칸을 누르면 수정 모달이 열린다 */
+.ssms-calendar__cell--editable {
+  cursor: pointer;
+}
+.ssms-calendar .tbl.data .ssms-calendar__cell--editable:hover {
+  background-color: var(--krds-light-color-surface-gray-subtler);
+}
+.ssms-calendar__date--button {
+  font-family: inherit;
+  font-size: inherit;
+}

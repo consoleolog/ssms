@@ -208,12 +208,15 @@
     if (weekday === 0 || holiday) modifiers.push("holiday");
     else if (weekday === 6) modifiers.push("saturday");
     if (isToday) modifiers.push("today");
+    if (isWorkday) modifiers.push("editable");
     const className = ["ssms-calendar__cell", ...modifiers.map((m) => `ssms-calendar__cell--${m}`)].join(" ");
 
     const head = [
       isOtherMonth
         ? `<span class="ssms-calendar__date"><span class="sr-only">${date.getMonth() + 1}월 </span>${date.getDate()}</span>`
-        : `<span class="ssms-calendar__date">${date.getDate()}</span>`,
+        : isWorkday
+          ? `<button type="button" class="ssms-calendar__date ssms-calendar__date--button" data-edit-date="${key}" aria-label="${formatDate(key)} 근무 수정">${date.getDate()}</button>`
+          : `<span class="ssms-calendar__date">${date.getDate()}</span>`,
       isToday ? `<span class="krds-badge bg-primary">오늘</span>` : "",
       holiday ? `<span class="ssms-calendar__holiday">${escapeHtml(holiday)}</span>` : "",
     ].join("");
@@ -640,6 +643,96 @@
     // 모달이 닫힌 뒤 이전 인원, 없으면 목록으로 초점 이동
     setTimeout(() => focusMemberButton(prev || state.members[0], "delete"), 400);
   });
+
+  /*
+   * 근무 직접 수정: 달력의 근무일을 누르면 그날의 근무 수정 모달을 연다
+   * - KRDS 입력폼 패턴: 입력 5개 이내의 수정은 모달, 저장 버튼은 오른쪽 아래
+   * - 불가 시간이거나 같은 사람이 오전/오후를 모두 맡으면 막지 않고 칸 아래에 안내한다
+   */
+  const dutySlots = $("duty_slots");
+  let editingDate = null;
+
+  const renderDutyNotices = () => {
+    const selects = [...dutySlots.querySelectorAll("select[data-slot]")];
+    const chosen = selects.map((select) => select.value).filter(Boolean);
+    selects.forEach((select) => {
+      const name = select.value;
+      const slot = select.dataset.slot;
+      const notices = [];
+      if (name && (slot === "DAY" ? SLOTS : [slot]).some((s) => (state.unavailable[name] || []).includes(`${editingDate}_${s}`))) {
+        notices.push(`${name}의 근무 불가 시간으로 등록되어 있습니다.`);
+      }
+      if (name && chosen.filter((n) => n === name).length > 1) notices.push("같은 사람이 오전과 오후를 모두 맡습니다.");
+
+      const hint = $(`${select.id}_hint`);
+      select.closest(".form-conts").classList.toggle("is-information", notices.length > 0);
+      // KRDS 안내 문구 클래스는 display를 지정하므로 hidden 대신 클래스를 뺀다
+      hint.className = notices.length ? "form-hint-information" : "";
+      hint.textContent = notices.join(" ");
+    });
+  };
+
+  const renderDutySlots = () => {
+    const duty = state.schedule[editingDate] || {};
+    dutySlots.innerHTML = slotsOf(editingDate)
+      .map((slot) => {
+        const id = `duty_slot_${slot.toLowerCase()}`;
+        const current = duty[slot] || "";
+        // 삭제된 인원이 배정되어 있으면 선택지에 남겨 둔다
+        const names = current && !state.members.includes(current) ? [...state.members, current] : state.members;
+        const options = [`<option value="">미배정</option>`]
+          .concat(names.map((name) => `<option value="${escapeHtml(name)}"${name === current ? " selected" : ""}>${escapeHtml(name)}</option>`))
+          .join("");
+        return `<div class="form-group">
+          <div class="form-tit"><label for="${id}">${SLOT_LABEL[slot]}</label></div>
+          <div class="form-conts">
+            <select id="${id}" class="krds-form-select" data-slot="${slot}" aria-describedby="${id}_hint">${options}</select>
+          </div>
+          <p id="${id}_hint"></p>
+        </div>`;
+      })
+      .join("");
+    renderDutyNotices();
+  };
+
+  const focusDateButton = (date) => {
+    document.querySelector(`[data-edit-date="${date}"]`)?.focus();
+  };
+
+  const openDutyEdit = (date, trigger) => {
+    if (typeof krds_modal === "undefined") return;
+    editingDate = date;
+    $("tit_modal_duty_edit").textContent = `${formatDate(date)} 근무 수정`;
+    renderDutySlots();
+    // krds_modal이 닫힐 때 초점을 돌려줄 수 있도록 트리거 표시 (ui-script.js의 open-modal 처리와 동일)
+    trigger.classList.add("modal-opened");
+    trigger.setAttribute("data-modal-id", "modal_duty_edit");
+    krds_modal.openModal("modal_duty_edit");
+  };
+
+  if (dutySlots) {
+    // 날짜 버튼(키보드)과 근무일 칸 어디를 눌러도(마우스) 같은 모달을 연다
+    $("calendar_body").addEventListener("click", (event) => {
+      const cell = event.target.closest(".ssms-calendar__cell--editable");
+      if (!cell) return;
+      const button = cell.querySelector("[data-edit-date]");
+      openDutyEdit(button.dataset.editDate, button);
+    });
+    dutySlots.addEventListener("change", renderDutyNotices);
+
+    $("btn_duty_save")?.addEventListener("click", () => {
+      const date = editingDate;
+      if (!date) return;
+      state.schedule[date] = Object.fromEntries(
+        [...dutySlots.querySelectorAll("select[data-slot]")].map((select) => [select.dataset.slot, select.value || null])
+      );
+      save();
+      render();
+      announce(`${formatDate(date)} 근무를 수정했습니다.`);
+      // 달력을 다시 그려 트리거가 바뀌었으므로, 모달이 닫힌 뒤 같은 날짜 버튼으로 초점 이동
+      setTimeout(() => focusDateButton(date), 400);
+    });
+  }
 
   render();
 })();
