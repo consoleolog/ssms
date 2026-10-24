@@ -111,11 +111,49 @@
   };
 
   /* 화면 연동 */
+  const EXCELJS_URL = new URL("../lib/exceljs/exceljs.min.js", document.currentScript?.src || window.location.href).href;
   const dataElement = document.getElementById("schedule_data");
   if (!dataElement) return;
-  const state = JSON.parse(dataElement.textContent);
-  state.schedule = state.schedule || {};
-  state.filter = "";
+  /*
+   * 로컬 저장 (localStorage)
+   * - #schedule_data는 처음 실행할 때의 초기값이고, 이후에는 저장된 값을 우선한다
+   * - 투입 인원(members)은 아직 화면에서 관리하지 않으므로 초기값을 그대로 쓴다
+   */
+  const STORAGE_KEY = "ssms.schedule";
+  const STORAGE_VERSION = 1;
+  const seed = JSON.parse(dataElement.textContent);
+
+  const loadStored = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      return stored && stored.version === STORAGE_VERSION ? stored : null;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const stored = loadStored();
+  const today = new Date();
+  const state = {
+    year: today.getFullYear(),
+    month: today.getMonth() + 1,
+    members: seed.members,
+    holidays: stored?.holidays || seed.holidays || {},
+    unavailable: stored?.unavailable || seed.unavailable || {},
+    schedule: stored?.schedule || seed.schedule || {},
+    filter: "",
+  };
+
+  let saveFailed = false;
+  const save = () => {
+    try {
+      const { holidays, unavailable, schedule } = state;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: STORAGE_VERSION, savedAt: new Date().toISOString(), holidays, unavailable, schedule }));
+      saveFailed = false;
+    } catch (error) {
+      saveFailed = true;
+    }
+  };
 
   const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
   const $ = (id) => document.getElementById(id);
@@ -271,7 +309,7 @@
 
   const status = $("schedule_status");
   const announce = (message) => {
-    if (status) status.textContent = message;
+    if (status) status.textContent = saveFailed ? `${message} 브라우저 저장소에 저장하지 못해 새로고침하면 변경 내용이 사라집니다.` : message;
   };
 
   // KRDS 입력 필드 상태: form-conts.is-error + form-hint-invalid
@@ -318,6 +356,7 @@
 
     state.holidays[key] = name;
     delete state.schedule[key];
+    save();
     // 추가한 공휴일이 보이도록 해당 달로 이동
     const [year, month] = key.split("-").map(Number);
     state.year = year;
@@ -337,6 +376,7 @@
     const prevKey = button.closest("li").previousElementSibling?.querySelector("[data-holiday]")?.dataset.holiday;
 
     delete state.holidays[key];
+    save();
     render();
 
     // 삭제 후 이전 항목, 없으면 목록으로 초점 이동
@@ -351,6 +391,7 @@
     workdays.forEach((key, i) => {
       state.schedule[key] = { ...days[i] };
     });
+    save();
     render();
 
     const unassigned = days.reduce((sum, day) => sum + HALVES.filter((half) => !day[half]).length, 0);
@@ -406,8 +447,170 @@
     });
     $("btn_unavailable_save")?.addEventListener("click", () => {
       state.unavailable = draft;
+      save();
+      announce(`${memberSelect.value}의 근무 불가일을 저장했습니다.`);
     });
   }
+
+  /*
+   * 엑셀 내보내기 (표시 중인 달)
+   * - ExcelJS는 용량이 커서 버튼을 처음 누를 때 불러온다 (static/ssms/lib/exceljs, MIT)
+   * - 시트: 달력 / 근무 목록 / 인원별 집계
+   */
+  let excelJsLoading = null;
+  const loadExcelJs = () => {
+    if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
+    excelJsLoading =
+      excelJsLoading ||
+      new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = EXCELJS_URL;
+        script.onload = () => resolve(window.ExcelJS);
+        script.onerror = () => {
+          excelJsLoading = null;
+          reject(new Error("ExcelJS load failed"));
+        };
+        document.head.append(script);
+      });
+    return excelJsLoading;
+  };
+
+  const XL = {
+    border: { style: "thin", color: { argb: "FFCDD1D5" } },
+    headFill: { type: "pattern", pattern: "solid", fgColor: { argb: "FFEEF2F7" } },
+    todayFill: { type: "pattern", pattern: "solid", fgColor: { argb: "FFECF2FE" } },
+    red: { argb: "FFD63D4A" },
+    blue: { argb: "FF0B78CB" },
+    gray: { argb: "FF8A949E" },
+  };
+  const allBorders = { top: XL.border, left: XL.border, bottom: XL.border, right: XL.border };
+
+  const styleHeaderRow = (row) => {
+    row.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.fill = XL.headFill;
+      cell.border = allBorders;
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    });
+  };
+
+  const addCalendarSheet = (workbook, title) => {
+    const sheet = workbook.addWorksheet("달력", {
+      pageSetup: { orientation: "landscape", fitToPage: true, fitToWidth: 1, fitToHeight: 0, paperSize: 9 },
+    });
+    sheet.columns = WEEKDAYS.map(() => ({ width: 18 }));
+    sheet.mergeCells(1, 1, 1, 7);
+    sheet.getCell(1, 1).value = `${title} 전산근무표`;
+    sheet.getCell(1, 1).font = { bold: true, size: 16 };
+    sheet.getRow(1).height = 30;
+
+    const head = sheet.addRow(WEEKDAYS);
+    styleHeaderRow(head);
+    head.getCell(1).font = { bold: true, color: XL.red };
+    head.getCell(7).font = { bold: true, color: XL.blue };
+
+    const first = new Date(state.year, state.month - 1, 1);
+    const day = new Date(first);
+    day.setDate(1 - first.getDay());
+    const todayKey = toKey(new Date());
+
+    while (day.getMonth() + 1 === state.month || day < first) {
+      const row = sheet.addRow([]);
+      row.height = 62;
+      for (let col = 1; col <= 7; col += 1) {
+        const cell = row.getCell(col);
+        const key = toKey(day);
+        cell.border = allBorders;
+        cell.alignment = { vertical: "top", horizontal: "left", wrapText: true };
+
+        if (day.getMonth() + 1 === state.month) {
+          const weekday = day.getDay();
+          const holiday = state.holidays[key];
+          const dateColor = weekday === 0 || holiday ? XL.red : weekday === 6 ? XL.blue : undefined;
+          const runs = [{ text: `${day.getDate()}${holiday ? ` ${holiday}` : ""}`, font: { bold: true, color: dateColor } }];
+          const duty = state.schedule[key];
+          if (duty && weekday !== 0 && weekday !== 6 && !holiday) {
+            HALVES.forEach((half) => runs.push({ text: `\n${HALF_LABEL[half]} ${duty[half] || "미배정"}`, font: duty[half] ? {} : { color: XL.red } }));
+          }
+          cell.value = { richText: runs };
+          if (key === todayKey) cell.fill = XL.todayFill;
+        }
+        day.setDate(day.getDate() + 1);
+      }
+    }
+  };
+
+  const addListSheet = (workbook) => {
+    const sheet = workbook.addWorksheet("근무 목록");
+    sheet.columns = [{ width: 14 }, { width: 8 }, { width: 14 }, { width: 14 }];
+    styleHeaderRow(sheet.addRow(["날짜", "요일", "오전", "오후"]));
+    currentWorkdays().forEach((key) => {
+      const [year, month, date] = key.split("-").map(Number);
+      const duty = state.schedule[key] || {};
+      const row = sheet.addRow([key, WEEKDAYS[new Date(year, month - 1, date).getDay()], duty.AM || "미배정", duty.PM || "미배정"]);
+      row.eachCell((cell) => {
+        cell.border = allBorders;
+        cell.alignment = { horizontal: "center" };
+        if (cell.value === "미배정") cell.font = { color: XL.red };
+      });
+    });
+    sheet.views = [{ state: "frozen", ySplit: 1 }];
+  };
+
+  const addMemberSheet = (workbook) => {
+    const sheet = workbook.addWorksheet("인원별 집계");
+    sheet.columns = [{ width: 14 }, { width: 10 }, { width: 10 }, { width: 10 }];
+    styleHeaderRow(sheet.addRow(["이름", "오전", "오후", "합계"]));
+    const counts = Object.fromEntries(state.members.map((name) => [name, { AM: 0, PM: 0 }]));
+    currentWorkdays().forEach((key) => {
+      const duty = state.schedule[key] || {};
+      HALVES.forEach((half) => {
+        if (counts[duty[half]]) counts[duty[half]][half] += 1;
+      });
+    });
+    state.members.forEach((name) => {
+      const { AM, PM } = counts[name];
+      sheet.addRow([name, AM, PM, AM + PM]).eachCell((cell) => {
+        cell.border = allBorders;
+        cell.alignment = { horizontal: "center" };
+      });
+    });
+  };
+
+  const downloadBlob = (blob, fileName) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const exportButton = $("btn_export_excel");
+  exportButton?.addEventListener("click", async () => {
+    const title = `${state.year}년 ${state.month}월`;
+    exportButton.disabled = true;
+    try {
+      const ExcelJS = await loadExcelJs();
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = "SSMS";
+      workbook.created = new Date();
+      addCalendarSheet(workbook, title);
+      addListSheet(workbook);
+      addMemberSheet(workbook);
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      downloadBlob(blob, `전산근무표_${state.year}-${pad(state.month)}.xlsx`);
+      announce(`${title} 근무표를 엑셀 파일로 내보냈습니다.`);
+    } catch (error) {
+      announce("엑셀 파일을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      exportButton.disabled = false;
+    }
+  });
 
   render();
 })();

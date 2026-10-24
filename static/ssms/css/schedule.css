@@ -7,6 +7,7 @@
   padding-bottom: var(--krds-padding-8);
 }
 .ssms-schedule__header,
+.ssms-schedule__actions,
 .ssms-schedule__toolbar,
 .ssms-schedule__nav,
 .ssms-schedule__filter {

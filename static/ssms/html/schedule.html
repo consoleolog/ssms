@@ -15,7 +15,10 @@
 			<!-- 페이지 제목 -->
 			<div class="ssms-schedule__header">
 				<h2 class="ssms-schedule__title">전산근무표</h2>
-				<button type="button" class="krds-btn medium primary" id="btn_auto_assign">근무 자동 편성</button>
+				<div class="ssms-schedule__actions">
+					<button type="button" class="krds-btn medium secondary" id="btn_export_excel">엑셀 내보내기</button>
+					<button type="button" class="krds-btn medium primary" id="btn_auto_assign">근무 자동 편성</button>
+				</div>
 			</div>
 			<!-- //페이지 제목 -->
 
@@ -173,16 +176,15 @@
 <!-- //근무 불가일 등록 모달 -->
 
 <!--
-	근무 편성 데이터 (서버에서 내려주는 값으로 교체)
-	- year, month: 처음 표시할 연월
+	근무 편성 초기 데이터
+	- 처음 실행할 때만 사용하고, 이후 변경 내용은 브라우저 localStorage("ssms.schedule")에 저장된다
+	- members: 투입 인원 (화면에서 관리하지 않으므로 여기서 수정)
 	- holidays: { "YYYY-MM-DD": "공휴일명" }
 	- unavailable: { 이름: ["YYYY-MM-DD_AM" | "YYYY-MM-DD_PM"] }
 	- schedule: { "YYYY-MM-DD": { "AM": 이름, "PM": 이름 } }
 -->
 <script type="application/json" id="schedule_data">
 	{
-		"year": 2026,
-		"month": 10,
 		"holidays": {
 			"2026-01-01": "신정",
 			"2026-02-16": "설날 연휴",
