@@ -45,3 +45,15 @@
 	.ssms__nav { order: -1; justify-content: center; }
 	.ssms__month { min-width: 0; font-size: var(--krds-mobile-font-size-heading-large); }
 }
+/* 인쇄: 연월과 달력만 A4 가로로 출력 */
+@media print {
+	@page { size: A4 landscape; margin: 10mm; }
+	* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+	.ssms { padding: 0; }
+	.ssms__title, .ssms__toolbar > :not(.ssms__nav), .ssms__nav button, .ssms__status, .ssms__panel, .ssms__aside { display: none !important; }
+	.ssms__toolbar { display: block; }
+	.ssms__nav { justify-content: center; }
+	.ssms__body { margin-top: var(--krds-gap-3); }
+	.ssms-calendar .tbl { min-width: 0; }
+	.ssms-calendar .tbl.data .ssms-calendar__cell { height: 2.6cm; }
+}

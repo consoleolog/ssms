@@ -109,6 +109,7 @@
   $("btn_prev").onclick = () => move(new Date(Y, M - 2, 1));
   $("btn_next").onclick = () => move(new Date(Y, M, 1));
   $("btn_today").onclick = () => move(new Date());
+  $("btn_print").onclick = () => print(); // 인쇄용 CSS(@media print)로 달력만 출력
 
   /* KRDS 모달: 스크립트로 열고, 닫힐 때 trigger로 초점이 돌아가도록 ui-script.js와 같은 표시를 붙인다 */
   const openModal = (id, trigger) => { trigger.classList.add("modal-opened"); trigger.dataset.modalId = id; krds_modal.openModal(id); };
