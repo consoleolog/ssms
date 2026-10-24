@@ -42,11 +42,17 @@
   flex-shrink: 0;
   width: 32rem;
 }
+.ssms-schedule__aside-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--krds-gap-2);
+  margin-bottom: var(--krds-gap-3);
+}
 .ssms-schedule__subtitle {
   display: flex;
   align-items: center;
   gap: var(--krds-gap-2);
-  margin-bottom: var(--krds-gap-3);
   font-size: var(--krds-pc-font-size-heading-xsmall);
 }
 @media (max-width: 1023px) {
@@ -117,13 +123,26 @@
 }
 .ssms-calendar__item {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--krds-gap-2);
+  gap: var(--krds-gap-1) var(--krds-gap-2);
+  white-space: nowrap;
 }
 
-/* 근무 불가일 선택 (KRDS 체크박스 칩 목록) */
-.ssms-unavailable__dates {
-  flex-wrap: wrap;
+/* 근무 불가일 등록 (날짜별 오전/오후 체크박스 칩 그룹) */
+.ssms-unavailable {
+  align-self: stretch;
+  border-top: 1px solid var(--krds-light-color-divider-gray-light);
+}
+.ssms-unavailable__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--krds-gap-3);
-  margin-top: var(--krds-gap-4);
+  padding: var(--krds-padding-3) 0;
+  border-bottom: 1px solid var(--krds-light-color-divider-gray-light);
+}
+.ssms-unavailable__date {
+  font-weight: var(--krds-font-weight-bold);
+  color: var(--krds-light-color-text-bolder);
 }
