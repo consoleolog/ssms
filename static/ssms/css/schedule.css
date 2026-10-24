@@ -17,6 +17,8 @@
 .ssms__panel.active .expand-wrap { overflow: visible; } /* KRDS 달력 팝업이 잘리지 않도록 */
 .ssms__list { border-top: 1px solid var(--krds-light-color-divider-gray-light); }
 .ssms__list > * { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--krds-gap-2); padding: var(--krds-padding-3) 0; border-bottom: 1px solid var(--krds-light-color-divider-gray-light); }
+.ssms__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr)); column-gap: var(--krds-gap-8); align-self: stretch; border-top: 0; }
+.ssms__grid > * { flex-wrap: nowrap; border-top: 1px solid var(--krds-light-color-divider-gray-light); border-bottom: 0; }
 .ssms__body { display: flex; align-items: flex-start; gap: var(--krds-gap-5); margin-top: var(--krds-gap-5); }
 .ssms__aside { flex-shrink: 0; width: 24rem; }
 

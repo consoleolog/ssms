@@ -290,8 +290,8 @@
   const memberMode = (n) => {
     editingMember = n;
     mInput.value = n || "";
-    $("member_submit").textContent = n ? "이름 변경" : "인원 추가";
-    $("member_cancel").hidden = !n;
+    $("member_submit").textContent = n ? "변경" : "추가";
+    $("member_cancel").parentNode.hidden = !n;
     setError(mInput, "", M_HINT);
     mInput.focus();
   };
