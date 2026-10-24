@@ -1,232 +1,45 @@
 @charset "UTF-8";
-/* 전산근무표 일정 - KRDS로 표현할 수 없는 레이아웃만 정의 */
+/* KRDS가 선언하지 않은 글꼴과 KRDS로 표현할 수 없는 배치만 정의 */
+@font-face { font-family: "Pretendard GOV"; font-weight: 400; src: url("../../krds/resources/fonts/PretendardGOV-Regular.subset.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard GOV"; font-weight: 500; src: url("../../krds/resources/fonts/PretendardGOV-Medium.subset.woff2") format("woff2"); }
+@font-face { font-family: "Pretendard GOV"; font-weight: 700; src: url("../../krds/resources/fonts/PretendardGOV-Bold.subset.woff2") format("woff2"); }
+[hidden] { display: none !important; }
 
-/* 페이지 */
-.ssms-schedule {
-  padding-top: var(--krds-padding-8);
-  padding-bottom: var(--krds-padding-8);
-}
-.ssms-schedule__header,
-.ssms-schedule__toolbar,
-.ssms-schedule__nav,
-.ssms-schedule__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--krds-gap-3);
-}
-.ssms-schedule__header,
-.ssms-schedule__toolbar {
-  justify-content: space-between;
-  margin-bottom: var(--krds-gap-5);
-}
-.ssms-schedule__title {
-  font-size: var(--krds-pc-font-size-heading-large);
-}
-.ssms-schedule__month {
-  min-width: 18rem;
-  font-size: var(--krds-pc-font-size-heading-large);
-  text-align: center;
-}
-/* 툴바: 왼쪽(오늘) · 가운데(연월) · 오른쪽(범례, 자동 편성) */
-.ssms-schedule__toolbar {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-}
-.ssms-schedule__actions {
-  justify-content: flex-end;
+.ssms { padding-top: var(--krds-padding-8); padding-bottom: var(--krds-padding-8); }
+.ssms__title { margin-bottom: var(--krds-gap-5); font-size: var(--krds-pc-font-size-heading-large); }
+.ssms__toolbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--krds-gap-3); }
+.ssms__nav, .ssms__actions, .ssms__buttons, .ssms__subtitle { display: flex; flex-wrap: wrap; align-items: center; gap: var(--krds-gap-2); }
+.ssms__actions, .ssms__buttons { justify-content: flex-end; align-self: stretch; } /* KRDS 입력폼: 버튼은 오른쪽 아래 */
+.ssms__status { min-height: 2.4rem; margin-top: var(--krds-gap-2); color: var(--krds-light-color-text-subtle); text-align: center; }
+.ssms__month { min-width: 18rem; font-size: var(--krds-pc-font-size-heading-large); text-align: center; }
+.ssms__subtitle { margin: var(--krds-gap-5) 0 var(--krds-gap-3); font-size: var(--krds-pc-font-size-heading-xsmall); }
+.ssms__panel { margin-top: var(--krds-gap-5); }
+.ssms__panel.active .expand-wrap { overflow: visible; } /* KRDS 달력 팝업이 잘리지 않도록 */
+.ssms__list { border-top: 1px solid var(--krds-light-color-divider-gray-light); }
+.ssms__list > * { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--krds-gap-2); padding: var(--krds-padding-3) 0; border-bottom: 1px solid var(--krds-light-color-divider-gray-light); }
+.ssms__body { display: flex; align-items: flex-start; gap: var(--krds-gap-5); margin-top: var(--krds-gap-5); }
+.ssms__aside { flex-shrink: 0; width: 24rem; }
+
+.ssms-calendar { flex: 1; min-width: 0; --krds-table--data-tbody-padding: var(--krds-padding-3); --krds-table--data-tbody-padding-sides: var(--krds-padding-3); }
+.ssms-calendar .tbl { min-width: 84rem; }
+.ssms-calendar .tbl.data .ssms-calendar__cell { height: 12rem; vertical-align: top; border-right: 1px solid var(--krds-light-color-divider-gray-light); }
+.ssms-calendar .tbl.data .ssms-calendar__cell--today { background-color: var(--krds-light-color-surface-primary-subtler); }
+.ssms-calendar .tbl.data .ssms-calendar__cell--edit { cursor: pointer; }
+.ssms-calendar .tbl.data .ssms-calendar__cell--edit:hover { background-color: var(--krds-light-color-surface-gray-subtler); }
+.ssms-calendar__head, .ssms-calendar__item { display: flex; align-items: center; gap: var(--krds-gap-2); margin-bottom: var(--krds-gap-1); }
+.ssms-calendar__date { font: inherit; font-weight: 700; color: var(--krds-light-color-text-bolder); }
+.ssms-calendar__cell--holiday .ssms-calendar__date, .ssms-calendar__holiday { color: var(--krds-light-color-text-danger); }
+.ssms-calendar__cell--saturday .ssms-calendar__date { color: var(--krds-light-color-text-information); }
+.ssms-calendar__cell--other .ssms-calendar__date { color: var(--krds-light-color-text-disabled); }
+.ssms-calendar__holiday { font-size: var(--krds-pc-font-size-label-xsmall); }
+.ssms-members .tbl { min-width: 100%; }
+
+@media (max-width: 1023px) {
+	.ssms__body { flex-direction: column; }
+	.ssms__aside { width: 100%; }
 }
 @media (max-width: 767px) {
-  .ssms-schedule__month {
-    min-width: 0;
-    font-size: var(--krds-mobile-font-size-heading-large);
-  }
-  .ssms-schedule__toolbar {
-    grid-template-columns: 1fr;
-  }
-  .ssms-schedule__nav {
-    order: -1;
-    justify-content: center;
-  }
-  .ssms-schedule__actions {
-    justify-content: space-between;
-  }
-}
-.ssms-schedule__body {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--krds-gap-5);
-}
-.ssms-schedule__calendar {
-  flex: 1;
-  min-width: 0;
-}
-.ssms-schedule__aside {
-  flex-shrink: 0;
-  width: 24rem;
-}
-.ssms-schedule__aside-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--krds-gap-2);
-  margin-bottom: var(--krds-gap-3);
-}
-.ssms-schedule__subtitle {
-  display: flex;
-  align-items: center;
-  gap: var(--krds-gap-2);
-  font-size: var(--krds-pc-font-size-heading-xsmall);
-}
-@media (max-width: 1023px) {
-  .ssms-schedule__body {
-    flex-direction: column;
-  }
-  .ssms-schedule__aside {
-    width: 100%;
-  }
-}
-
-/* 투입 인원 (KRDS 표 확장) */
-.ssms-members {
-  --krds-table--data-thead-th-padding-sides: var(--krds-padding-4);
-  --krds-table--data-tbody-padding: var(--krds-padding-3);
-  --krds-table--data-tbody-padding-sides: var(--krds-padding-4);
-}
-/* KRDS 모바일 표 최소 너비(73.2rem) 해제 - 3열 표라 가로 스크롤 불필요 */
-.ssms-members .tbl {
-  min-width: 100%;
-}
-
-/* 달력 (KRDS 표 .krds-table-wrap .tbl.data 확장) */
-.ssms-calendar {
-  --krds-table--data-thead-th-padding-sides: var(--krds-padding-4);
-  --krds-table--data-tbody-padding: var(--krds-padding-3);
-  --krds-table--data-tbody-padding-sides: var(--krds-padding-3);
-}
-.ssms-calendar .tbl {
-  min-width: 84rem;
-}
-/* KRDS 표의 vertical-align: middle 보다 우선하기 위해 상위 선택자 사용 */
-.ssms-calendar .tbl.data .ssms-calendar__cell {
-  height: 12rem;
-  vertical-align: top;
-  border-right: var(--krds-table--data-border-width) solid var(--krds-table--data-tbody-color-divider);
-}
-.ssms-calendar__cell--holiday .ssms-calendar__date {
-  color: var(--krds-light-color-text-danger);
-}
-.ssms-calendar__cell--saturday .ssms-calendar__date {
-  color: var(--krds-light-color-text-information);
-}
-.ssms-calendar__cell--other-month .ssms-calendar__date {
-  color: var(--krds-light-color-text-disabled);
-}
-.ssms-calendar .tbl.data .ssms-calendar__cell--today {
-  background-color: var(--krds-light-color-surface-primary-subtler);
-}
-.ssms-calendar__head {
-  display: flex;
-  align-items: center;
-  gap: var(--krds-gap-2);
-  margin-bottom: var(--krds-gap-2);
-}
-.ssms-calendar__date {
-  font-weight: var(--krds-font-weight-bold);
-  color: var(--krds-light-color-text-bolder);
-}
-.ssms-calendar__holiday {
-  font-size: var(--krds-pc-font-size-label-xsmall);
-  color: var(--krds-light-color-text-danger);
-}
-.ssms-calendar__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--krds-gap-1);
-}
-.ssms-calendar__item {
-  display: flex;
-  align-items: center;
-  gap: var(--krds-gap-2);
-}
-
-/* 근무 불가일 등록 (날짜별 오전/오후 체크박스 칩 그룹) */
-.ssms-unavailable {
-  align-self: stretch;
-  border-top: 1px solid var(--krds-light-color-divider-gray-light);
-}
-.ssms-unavailable__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--krds-gap-3);
-  padding: var(--krds-padding-3) 0;
-  border-bottom: 1px solid var(--krds-light-color-divider-gray-light);
-}
-.ssms-unavailable__date {
-  font-weight: var(--krds-font-weight-bold);
-  color: var(--krds-light-color-text-bolder);
-}
-
-/* 공휴일 설정 (KRDS 디스클로저 내부) */
-.ssms-holiday {
-  margin-bottom: var(--krds-gap-5);
-}
-.ssms-holiday__title {
-  margin: var(--krds-gap-6) 0 var(--krds-gap-3);
-  font-size: var(--krds-pc-font-size-heading-xxsmall);
-}
-.ssms-holiday__list {
-  border-top: 1px solid var(--krds-light-color-divider-gray-light);
-}
-.ssms-holiday__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--krds-gap-3);
-  padding: var(--krds-padding-3) 0;
-  border-bottom: 1px solid var(--krds-light-color-divider-gray-light);
-}
-
-/* 투입 인원 수정 (KRDS 디스클로저 내부) */
-.ssms-member {
-  margin-top: var(--krds-gap-5);
-}
-.ssms-member__list {
-  margin-top: var(--krds-gap-5);
-  border-top: 1px solid var(--krds-light-color-divider-gray-light);
-}
-.ssms-member__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--krds-gap-2);
-  padding: var(--krds-padding-3) 0;
-  border-bottom: 1px solid var(--krds-light-color-divider-gray-light);
-}
-.ssms-member__item--editing {
-  flex-direction: column;
-  align-items: stretch;
-}
-.ssms-member__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--krds-gap-2);
-}
-
-/* 근무 수정: 근무일 칸을 누르면 수정 모달이 열린다 */
-.ssms-calendar__cell--editable {
-  cursor: pointer;
-}
-.ssms-calendar .tbl.data .ssms-calendar__cell--editable:hover {
-  background-color: var(--krds-light-color-surface-gray-subtler);
-}
-.ssms-calendar__date--button {
-  font-family: inherit;
-  font-size: inherit;
-}
-
-/* 공휴일 설정: 펼친 동안에는 KRDS 달력 팝업이 디스클로저(overflow: hidden) 밖으로 보이도록 허용 */
-.ssms-holiday.active .expand-wrap {
-  overflow: visible;
+	.ssms__toolbar { grid-template-columns: 1fr; }
+	.ssms__nav { order: -1; justify-content: center; }
+	.ssms__month { min-width: 0; font-size: var(--krds-mobile-font-size-heading-large); }
 }
