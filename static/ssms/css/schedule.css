@@ -46,16 +46,20 @@
 	.ssms__nav { order: -1; grid-column: 1 / -1; justify-content: center; }
 	.ssms__month { min-width: 0; font-size: var(--krds-mobile-font-size-heading-large); }
 }
-/* 인쇄: 연월과 달력만 A4 세로 한 장에 꽉 차게 출력 */
+/* 인쇄: 연월과 달력만 A4 세로 한 장에 크게 (근무 변경은 출력물에 직접 적는다) */
 @media print {
-	@page { size: A4 portrait; margin: 10mm; }
+	@page { size: A4 portrait; margin: 7mm; }
 	* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 	.ssms { padding: 0; }
-	.ssms__header, .ssms__toolbar > :not(.ssms__nav), .ssms__nav button, .ssms__status, .ssms__panel, .ssms__aside { display: none !important; }
+	.ssms__header, .ssms__toolbar > :not(.ssms__nav), .ssms__nav button, .ssms__status, .ssms__panel, .ssms__aside, .ssms-calendar__head .bg-primary { display: none !important; }
 	.ssms__toolbar { display: block; }
 	.ssms__nav { justify-content: center; }
-	.ssms__body { margin-top: var(--krds-gap-3); }
-	.ssms-calendar { width: 100% !important; }
-	.ssms-calendar .tbl { min-width: 0; height: 255mm; } /* 표 높이를 고정하면 5주, 6주 모두 행이 나눠 채운다 */
-	.ssms-calendar .tbl.data .ssms-calendar__cell { height: auto; }
+	.ssms__month { font-size: 22pt; }
+	.ssms__body { margin-top: 2mm; }
+	.ssms-calendar { width: 100% !important; --krds-table--data-tbody-padding: 1.5mm; --krds-table--data-tbody-padding-sides: 1.5mm; --krds-table--data-thead-th-padding-sides: 1.5mm; }
+	.ssms-calendar .tbl { min-width: 0; height: 265mm; } /* 표 높이를 고정하면 5주, 6주 모두 행이 나눠 채운다 */
+	.ssms-calendar .tbl.data th, .ssms-calendar .tbl.data .ssms-calendar__cell { height: auto; font-size: 13pt; }
+	.ssms-calendar .tbl.data .ssms-calendar__cell--today { background: none; } /* 한 달 동안 쓰는 출력물이라 오늘 표시는 뺀다 */
+	.ssms-calendar__item { flex-wrap: wrap; gap: 1mm; } /* 긴 이름은 칸을 넘지 않고 다음 줄로 */
+	.ssms-calendar__item .krds-badge { font-size: 10pt; }
 }
