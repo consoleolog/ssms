@@ -114,76 +114,198 @@
   const dataElement = document.getElementById("schedule_data");
   if (!dataElement) return;
   const state = JSON.parse(dataElement.textContent);
+  state.schedule = state.schedule || {};
+  state.filter = "";
 
-  const createDutyItem = (half, name) => {
-    const item = document.createElement("li");
-    item.className = "ssms-calendar__item";
-    const badge = document.createElement("span");
-    badge.className = `krds-badge ${name ? HALF_BADGE[half] : "bg-light-danger"}`;
-    badge.textContent = HALF_LABEL[half];
-    item.append(badge, ` ${name || "미배정"}`);
-    return item;
+  const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+  const $ = (id) => document.getElementById(id);
+  const toKey = (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const escapeHtml = (value) =>
+    String(value).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+  const currentWorkdays = () => getWorkdays(state.year, state.month, Object.keys(state.holidays));
+
+  /* 달력 */
+  const renderDutyList = (dateKey) => {
+    const duty = state.schedule[dateKey];
+    if (!duty) return "";
+    const halves = HALVES.filter((half) => !state.filter || half === state.filter);
+    const items = halves
+      .map((half) => {
+        const name = duty[half];
+        const badge = name ? HALF_BADGE[half] : "bg-light-danger";
+        return `<li class="ssms-calendar__item"><span class="krds-badge ${badge}">${HALF_LABEL[half]}</span> ${name ? escapeHtml(name) : "미배정"}</li>`;
+      })
+      .join("");
+    return `<ul class="ssms-calendar__list">${items}</ul>`;
   };
 
-  const renderSchedule = (workdays, { days, stats }) => {
-    workdays.forEach((date, i) => {
-      const cell = document.querySelector(`.ssms-calendar__cell[data-date="${date}"]`);
-      if (!cell) return;
-      let list = cell.querySelector(".ssms-calendar__list");
-      if (!list) {
-        list = document.createElement("ul");
-        list.className = "ssms-calendar__list";
-        cell.append(list);
-      }
-      list.replaceChildren(...HALVES.map((half) => createDutyItem(half, days[i][half])));
-    });
+  const renderCell = (date) => {
+    const key = toKey(date);
+    const isOtherMonth = date.getMonth() + 1 !== state.month;
+    const holiday = state.holidays[key];
+    const weekday = date.getDay();
+    const isToday = key === toKey(new Date());
 
-    state.members.forEach((name) => {
-      const row = document.querySelector(`.ssms-members tr[data-member="${name}"]`);
-      if (!row) return;
+    const modifiers = [];
+    if (isOtherMonth) modifiers.push("other-month");
+    if (weekday === 0 || holiday) modifiers.push("holiday");
+    else if (weekday === 6) modifiers.push("saturday");
+    if (isToday) modifiers.push("today");
+    const className = ["ssms-calendar__cell", ...modifiers.map((m) => `ssms-calendar__cell--${m}`)].join(" ");
+
+    const head = [
+      isOtherMonth
+        ? `<span class="ssms-calendar__date"><span class="sr-only">${date.getMonth() + 1}월 </span>${date.getDate()}</span>`
+        : `<span class="ssms-calendar__date">${date.getDate()}</span>`,
+      isToday ? `<span class="krds-badge bg-primary">오늘</span>` : "",
+      holiday ? `<span class="ssms-calendar__holiday">${escapeHtml(holiday)}</span>` : "",
+    ].join("");
+
+    return `<td class="${className}"${isOtherMonth ? "" : ` data-date="${key}"`}${isToday ? ` aria-current="date"` : ""}>
+      <div class="ssms-calendar__head">${head}</div>
+      ${isOtherMonth ? "" : renderDutyList(key)}
+    </td>`;
+  };
+
+  const renderCalendar = () => {
+    const first = new Date(state.year, state.month - 1, 1);
+    const last = new Date(state.year, state.month, 0);
+    const start = new Date(first);
+    start.setDate(1 - first.getDay());
+    const end = new Date(last);
+    end.setDate(last.getDate() + (6 - last.getDay()));
+
+    const rows = [];
+    for (const day = new Date(start); day <= end; ) {
+      const cells = [];
+      for (let i = 0; i < 7; i += 1) {
+        cells.push(renderCell(day));
+        day.setDate(day.getDate() + 1);
+      }
+      rows.push(`<tr>${cells.join("")}</tr>`);
+    }
+
+    const title = `${state.year}년 ${state.month}월`;
+    $("schedule_month").textContent = title;
+    $("calendar_caption").textContent = `${title} 전산근무표로 ${WEEKDAYS[0]}요일부터 ${WEEKDAYS[6]}요일까지 날짜별 근무 유형과 근무자로 구성되어 있습니다.`;
+    $("calendar_body").innerHTML = rows.join("");
+  };
+
+  /* 투입 인원 (표시 중인 달의 근무 횟수) */
+  const renderMembers = () => {
+    const counts = Object.fromEntries(state.members.map((name) => [name, { AM: 0, PM: 0 }]));
+    currentWorkdays().forEach((key) => {
+      const duty = state.schedule[key] || {};
       HALVES.forEach((half) => {
-        row.querySelector(`[data-count="${half.toLowerCase()}"]`).textContent = stats[name][half];
+        if (counts[duty[half]]) counts[duty[half]][half] += 1;
       });
     });
+
+    $("member_count").textContent = `${state.members.length}명`;
+    $("members_caption").textContent = `${state.year}년 ${state.month}월 전산근무 투입 인원으로 이름, 오전 근무 횟수, 오후 근무 횟수로 구성되어 있습니다.`;
+    $("members_body").innerHTML = state.members
+      .map(
+        (name) => `<tr>
+          <th scope="row">${escapeHtml(name)}</th>
+          <td>${counts[name].AM}</td>
+          <td>${counts[name].PM}</td>
+        </tr>`
+      )
+      .join("");
   };
 
-  const status = document.getElementById("schedule_status");
-  document.getElementById("btn_auto_assign")?.addEventListener("click", () => {
-    const workdays = getWorkdays(state.year, state.month, state.holidays);
-    const result = assignDuties({ workdays, members: state.members, unavailable: state.unavailable });
-    renderSchedule(workdays, result);
+  const render = () => {
+    renderCalendar();
+    renderMembers();
+  };
 
-    const unassigned = result.days.reduce((sum, day) => sum + HALVES.filter((half) => !day[half]).length, 0);
+  const moveMonth = (offset) => {
+    const target = new Date(state.year, state.month - 1 + offset, 1);
+    state.year = target.getFullYear();
+    state.month = target.getMonth() + 1;
+    render();
+  };
+
+  $("btn_prev_month")?.addEventListener("click", () => moveMonth(-1));
+  $("btn_next_month")?.addEventListener("click", () => moveMonth(1));
+  $("btn_today")?.addEventListener("click", () => {
+    const today = new Date();
+    state.year = today.getFullYear();
+    state.month = today.getMonth() + 1;
+    render();
+  });
+  $("schedule_filter")?.addEventListener("change", (event) => {
+    state.filter = event.target.value;
+    renderCalendar();
+  });
+
+  /* 자동 편성 */
+  const status = $("schedule_status");
+  $("btn_auto_assign")?.addEventListener("click", () => {
+    const workdays = currentWorkdays();
+    const { days } = assignDuties({ workdays, members: state.members, unavailable: state.unavailable });
+    workdays.forEach((key, i) => {
+      state.schedule[key] = { ...days[i] };
+    });
+    render();
+
+    const unassigned = days.reduce((sum, day) => sum + HALVES.filter((half) => !day[half]).length, 0);
     if (status) {
       status.textContent = `${state.year}년 ${state.month}월 근무를 자동 편성했습니다.${unassigned ? ` 미배정 ${unassigned}건이 있습니다.` : ""}`;
     }
   });
 
-  /* 근무 불가일 등록 모달: 저장 전까지는 draft에서만 변경 */
-  const memberSelect = document.getElementById("unavailable_member");
-  const checkboxes = [...document.querySelectorAll('input[name="unavailable"]')];
+  /* 근무 불가일 등록 모달: 표시 중인 달 기준, 저장 전까지는 draft에서만 변경 */
+  const memberSelect = $("unavailable_member");
+  const unavailableList = $("unavailable_list");
   let draft = {};
 
-  const syncCheckboxes = () => {
+  const renderUnavailableList = () => {
+    $("unavailable_legend").textContent = `${state.year}년 ${state.month}월 근무 불가 시간 선택`;
     const selected = new Set(draft[memberSelect.value] || []);
-    checkboxes.forEach((checkbox) => {
-      checkbox.checked = selected.has(checkbox.value);
-    });
+    unavailableList.innerHTML = currentWorkdays()
+      .map((key) => {
+        const [, month, day] = key.split("-").map(Number);
+        const weekday = WEEKDAYS[new Date(state.year, month - 1, day).getDay()];
+        const id = key.replace(/-/g, "");
+        const chips = HALVES.map((half) => {
+          const value = `${key}_${half}`;
+          const inputId = `chk_unavailable_${id}_${half.toLowerCase()}`;
+          return `<div class="krds-form-chip small">
+            <input type="checkbox" class="checkbox" id="${inputId}" name="unavailable" value="${value}"${selected.has(value) ? " checked" : ""}>
+            <label class="krds-form-chip-outline" for="${inputId}">${HALF_LABEL[half]}</label>
+          </div>`;
+        }).join("");
+        return `<div class="ssms-unavailable__row" role="group" aria-labelledby="unavailable_date_${id}">
+          <span class="ssms-unavailable__date" id="unavailable_date_${id}">${month}월 ${day}일 (${weekday})</span>
+          <div class="krds-check-area">${chips}</div>
+        </div>`;
+      })
+      .join("");
   };
 
-  document.querySelectorAll('.open-modal[data-target="modal_unavailable"]').forEach((button) => {
-    button.addEventListener("click", () => {
-      draft = JSON.parse(JSON.stringify(state.unavailable));
-      syncCheckboxes();
+  if (memberSelect && unavailableList) {
+    memberSelect.innerHTML = state.members.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+
+    // 모달은 ui-script.js(krds_modal)가 열고, 여기서는 내용만 채운다
+    document.querySelectorAll('.open-modal[data-target="modal_unavailable"]').forEach((button) => {
+      button.addEventListener("click", () => {
+        draft = JSON.parse(JSON.stringify(state.unavailable));
+        renderUnavailableList();
+      });
     });
-  });
-  memberSelect?.addEventListener("change", syncCheckboxes);
-  checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener("change", () => {
-      draft[memberSelect.value] = checkboxes.filter((c) => c.checked).map((c) => c.value);
+    memberSelect.addEventListener("change", renderUnavailableList);
+    unavailableList.addEventListener("change", (event) => {
+      if (event.target.name !== "unavailable") return;
+      const prefix = `${state.year}-${pad(state.month)}-`;
+      const otherMonths = (draft[memberSelect.value] || []).filter((value) => !value.startsWith(prefix));
+      const checked = [...unavailableList.querySelectorAll('input[name="unavailable"]:checked')].map((c) => c.value);
+      draft[memberSelect.value] = [...otherMonths, ...checked];
     });
-  });
-  document.getElementById("btn_unavailable_save")?.addEventListener("click", () => {
-    state.unavailable = draft;
-  });
+    $("btn_unavailable_save")?.addEventListener("click", () => {
+      state.unavailable = draft;
+    });
+  }
+
+  render();
 })();
