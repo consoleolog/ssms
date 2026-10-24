@@ -6,7 +6,8 @@
 [hidden] { display: none !important; }
 
 .ssms { padding-top: var(--krds-padding-8); padding-bottom: var(--krds-padding-8); }
-.ssms__title { margin-bottom: var(--krds-gap-5); font-size: var(--krds-pc-font-size-heading-large); }
+.ssms__header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--krds-gap-3); margin-bottom: var(--krds-gap-5); }
+.ssms__title { font-size: var(--krds-pc-font-size-heading-large); }
 .ssms__toolbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--krds-gap-3); }
 .ssms__nav, .ssms__actions, .ssms__buttons, .ssms__subtitle { display: flex; flex-wrap: wrap; align-items: center; gap: var(--krds-gap-2); }
 .ssms__actions, .ssms__buttons { justify-content: flex-end; align-self: stretch; } /* KRDS 입력폼: 버튼은 오른쪽 아래 */
@@ -41,8 +42,8 @@
 	.ssms__aside { width: 100%; }
 }
 @media (max-width: 767px) {
-	.ssms__toolbar { grid-template-columns: 1fr; }
-	.ssms__nav { order: -1; justify-content: center; }
+	.ssms__toolbar { grid-template-columns: 1fr 1fr; }
+	.ssms__nav { order: -1; grid-column: 1 / -1; justify-content: center; }
 	.ssms__month { min-width: 0; font-size: var(--krds-mobile-font-size-heading-large); }
 }
 /* 인쇄: 연월과 달력만 A4 가로로 출력 */
@@ -50,7 +51,7 @@
 	@page { size: A4 landscape; margin: 10mm; }
 	* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 	.ssms { padding: 0; }
-	.ssms__title, .ssms__toolbar > :not(.ssms__nav), .ssms__nav button, .ssms__status, .ssms__panel, .ssms__aside { display: none !important; }
+	.ssms__header, .ssms__toolbar > :not(.ssms__nav), .ssms__nav button, .ssms__status, .ssms__panel, .ssms__aside { display: none !important; }
 	.ssms__toolbar { display: block; }
 	.ssms__nav { justify-content: center; }
 	.ssms__body { margin-top: var(--krds-gap-3); }

@@ -10,7 +10,13 @@
 <body>
 <div id="wrap">
 <main id="container" class="inner ssms">
-<h2 class="ssms__title">전산근무표</h2>
+<div class="ssms__header">
+	<h2 class="ssms__title">전산근무표</h2>
+	<div class="ssms__actions">
+		<button type="button" class="krds-btn medium tertiary" id="btn_print"><i class="svg-icon ico-print"></i>인쇄</button>
+		<button type="button" class="krds-btn medium secondary" id="btn_auto"><i class="svg-icon ico-refresh"></i>자동 편성</button>
+	</div>
+</div>
 <div class="ssms__toolbar">
 	<div><button type="button" class="krds-btn small tertiary" id="btn_today">오늘</button></div>
 	<div class="ssms__nav">
@@ -18,12 +24,10 @@
 		<h3 class="ssms__month" id="month"></h3>
 		<button type="button" class="krds-btn medium icon border" id="btn_next"><span class="sr-only">다음 달</span><i class="svg-icon ico-angle right"></i></button>
 	</div>
-	<div class="ssms__actions">
+	<div class="ssms__actions" aria-label="근무 범례">
 		<span class="krds-badge bg-light-primary">오전</span>
 		<span class="krds-badge bg-light-point">오후</span>
 		<span class="krds-badge bg-light-success">종일</span>
-		<button type="button" class="krds-btn medium tertiary" id="btn_print"><i class="svg-icon ico-print"></i>인쇄</button>
-		<button type="button" class="krds-btn medium secondary" id="btn_auto"><i class="svg-icon ico-refresh"></i>자동 편성</button>
 	</div>
 </div>
 <p class="ssms__status" id="status" aria-live="polite"></p>
