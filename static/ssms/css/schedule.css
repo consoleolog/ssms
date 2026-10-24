@@ -123,10 +123,8 @@
 }
 .ssms-calendar__item {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--krds-gap-1) var(--krds-gap-2);
-  white-space: nowrap;
+  gap: var(--krds-gap-2);
 }
 
 /* 근무 불가일 등록 (날짜별 오전/오후 체크박스 칩 그룹) */
