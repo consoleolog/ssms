@@ -111,13 +111,11 @@
   };
 
   /* 화면 연동 */
-  const EXCELJS_URL = new URL("../lib/exceljs/exceljs.min.js", document.currentScript?.src || window.location.href).href;
   const dataElement = document.getElementById("schedule_data");
   if (!dataElement) return;
   /*
    * 로컬 저장 (localStorage)
    * - #schedule_data는 처음 실행할 때의 초기값이고, 이후에는 저장된 값을 우선한다
-   * - 투입 인원(members)은 아직 화면에서 관리하지 않으므로 초기값을 그대로 쓴다
    */
   const STORAGE_KEY = "ssms.schedule";
   const STORAGE_VERSION = 1;
@@ -137,7 +135,7 @@
   const state = {
     year: today.getFullYear(),
     month: today.getMonth() + 1,
-    members: seed.members,
+    members: stored?.members || seed.members || [],
     holidays: stored?.holidays || seed.holidays || {},
     unavailable: stored?.unavailable || seed.unavailable || {},
     schedule: stored?.schedule || seed.schedule || {},
@@ -147,8 +145,9 @@
   let saveFailed = false;
   const save = () => {
     try {
-      const { holidays, unavailable, schedule } = state;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: STORAGE_VERSION, savedAt: new Date().toISOString(), holidays, unavailable, schedule }));
+      const { members, holidays, unavailable, schedule } = state;
+      const data = { version: STORAGE_VERSION, savedAt: new Date().toISOString(), members, holidays, unavailable, schedule };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       saveFailed = false;
     } catch (error) {
       saveFailed = true;
@@ -242,15 +241,17 @@
 
     $("member_count").textContent = `${state.members.length}명`;
     $("members_caption").textContent = `${state.year}년 ${state.month}월 전산근무 투입 인원으로 이름, 오전 근무 횟수, 오후 근무 횟수로 구성되어 있습니다.`;
-    $("members_body").innerHTML = state.members
-      .map(
-        (name) => `<tr>
-          <th scope="row">${escapeHtml(name)}</th>
-          <td>${counts[name].AM}</td>
-          <td>${counts[name].PM}</td>
-        </tr>`
-      )
-      .join("");
+    $("members_body").innerHTML = state.members.length
+      ? state.members
+          .map(
+            (name) => `<tr>
+              <th scope="row">${escapeHtml(name)}</th>
+              <td>${counts[name].AM}</td>
+              <td>${counts[name].PM}</td>
+            </tr>`
+          )
+          .join("")
+      : `<tr><td colspan="3">등록된 투입 인원이 없습니다.</td></tr>`;
   };
 
   /* 공휴일 설정 (표시 중인 달의 공휴일 목록) */
@@ -285,6 +286,8 @@
     renderCalendar();
     renderMembers();
     renderHolidayList();
+    renderMemberOptions();
+    renderMemberEditor();
   };
 
   const moveMonth = (offset) => {
@@ -427,8 +430,14 @@
       .join("");
   };
 
-  if (memberSelect && unavailableList) {
+  function renderMemberOptions() {
+    if (!memberSelect) return;
+    const selected = memberSelect.value;
     memberSelect.innerHTML = state.members.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+    if (state.members.includes(selected)) memberSelect.value = selected;
+  }
+
+  if (memberSelect && unavailableList) {
 
     // 모달은 ui-script.js(krds_modal)가 열고, 여기서는 내용만 채운다
     document.querySelectorAll('.open-modal[data-target="modal_unavailable"]').forEach((button) => {
@@ -452,164 +461,164 @@
     });
   }
 
-  /*
-   * 엑셀 내보내기 (표시 중인 달)
-   * - ExcelJS는 용량이 커서 버튼을 처음 누를 때 불러온다 (static/ssms/lib/exceljs, MIT)
-   * - 시트: 달력 / 근무 목록 / 인원별 집계
-   */
-  let excelJsLoading = null;
-  const loadExcelJs = () => {
-    if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
-    excelJsLoading =
-      excelJsLoading ||
-      new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = EXCELJS_URL;
-        script.onload = () => resolve(window.ExcelJS);
-        script.onerror = () => {
-          excelJsLoading = null;
-          reject(new Error("ExcelJS load failed"));
-        };
-        document.head.append(script);
-      });
-    return excelJsLoading;
+  /* 투입 인원 수정: 추가, 이름 수정(목록에서 바로 편집), 삭제(확인 모달) */
+  const memberForm = $("member_form");
+  const memberName = $("member_name");
+  const memberList = $("member_list");
+  const MEMBER_HINT = "20자 이내로 입력해 주세요.";
+  let editingMember = null;
+  let pendingDelete = null;
+
+  const validateMemberName = (name, current) => {
+    if (!name) return "이름을 입력해 주세요.";
+    if (name !== current && state.members.includes(name)) return "이미 등록된 이름입니다.";
+    return "";
   };
 
-  const XL = {
-    border: { style: "thin", color: { argb: "FFCDD1D5" } },
-    headFill: { type: "pattern", pattern: "solid", fgColor: { argb: "FFEEF2F7" } },
-    todayFill: { type: "pattern", pattern: "solid", fgColor: { argb: "FFECF2FE" } },
-    red: { argb: "FFD63D4A" },
-    blue: { argb: "FF0B78CB" },
-    gray: { argb: "FF8A949E" },
+  function renderMemberEditor() {
+    if (!memberList) return;
+    memberList.innerHTML = state.members.length
+      ? state.members
+          .map((name) => {
+            const safe = escapeHtml(name);
+            if (name === editingMember) {
+              return `<li class="ssms-member__item ssms-member__item--editing">
+                <div class="form-group">
+                  <label class="sr-only" for="member_edit">${safe} 이름 수정</label>
+                  <div class="form-conts">
+                    <input type="text" id="member_edit" class="krds-input small" value="${safe}" maxlength="20" autocomplete="off" aria-describedby="member_edit_hint">
+                  </div>
+                  <p class="form-hint" id="member_edit_hint">${MEMBER_HINT}</p>
+                </div>
+                <div class="ssms-member__actions">
+                  <button type="button" class="krds-btn xsmall tertiary" data-action="cancel">취소</button>
+                  <button type="button" class="krds-btn xsmall primary" data-action="save">저장</button>
+                </div>
+              </li>`;
+            }
+            return `<li class="ssms-member__item">
+              <span>${safe}</span>
+              <div class="ssms-member__actions">
+                <button type="button" class="krds-btn xsmall tertiary" data-action="edit" data-member="${safe}" aria-label="${safe} 이름 수정">수정</button>
+                <button type="button" class="krds-btn xsmall tertiary" data-action="delete" data-member="${safe}" aria-label="${safe} 삭제">삭제</button>
+              </div>
+            </li>`;
+          })
+          .join("")
+      : `<li class="ssms-member__item">등록된 투입 인원이 없습니다.</li>`;
+  }
+
+  const focusMemberButton = (name, action) => {
+    const button = [...memberList.querySelectorAll(`[data-action="${action}"]`)].find((b) => b.dataset.member === name);
+    (button || memberList).focus();
   };
-  const allBorders = { top: XL.border, left: XL.border, bottom: XL.border, right: XL.border };
 
-  const styleHeaderRow = (row) => {
-    row.eachCell((cell) => {
-      cell.font = { bold: true };
-      cell.fill = XL.headFill;
-      cell.border = allBorders;
-      cell.alignment = { vertical: "middle", horizontal: "center" };
-    });
-  };
-
-  const addCalendarSheet = (workbook, title) => {
-    const sheet = workbook.addWorksheet("달력", {
-      pageSetup: { orientation: "landscape", fitToPage: true, fitToWidth: 1, fitToHeight: 0, paperSize: 9 },
-    });
-    sheet.columns = WEEKDAYS.map(() => ({ width: 18 }));
-    sheet.mergeCells(1, 1, 1, 7);
-    sheet.getCell(1, 1).value = `${title} 전산근무표`;
-    sheet.getCell(1, 1).font = { bold: true, size: 16 };
-    sheet.getRow(1).height = 30;
-
-    const head = sheet.addRow(WEEKDAYS);
-    styleHeaderRow(head);
-    head.getCell(1).font = { bold: true, color: XL.red };
-    head.getCell(7).font = { bold: true, color: XL.blue };
-
-    const first = new Date(state.year, state.month - 1, 1);
-    const day = new Date(first);
-    day.setDate(1 - first.getDay());
-    const todayKey = toKey(new Date());
-
-    while (day.getMonth() + 1 === state.month || day < first) {
-      const row = sheet.addRow([]);
-      row.height = 62;
-      for (let col = 1; col <= 7; col += 1) {
-        const cell = row.getCell(col);
-        const key = toKey(day);
-        cell.border = allBorders;
-        cell.alignment = { vertical: "top", horizontal: "left", wrapText: true };
-
-        if (day.getMonth() + 1 === state.month) {
-          const weekday = day.getDay();
-          const holiday = state.holidays[key];
-          const dateColor = weekday === 0 || holiday ? XL.red : weekday === 6 ? XL.blue : undefined;
-          const runs = [{ text: `${day.getDate()}${holiday ? ` ${holiday}` : ""}`, font: { bold: true, color: dateColor } }];
-          const duty = state.schedule[key];
-          if (duty && weekday !== 0 && weekday !== 6 && !holiday) {
-            HALVES.forEach((half) => runs.push({ text: `\n${HALF_LABEL[half]} ${duty[half] || "미배정"}`, font: duty[half] ? {} : { color: XL.red } }));
-          }
-          cell.value = { richText: runs };
-          if (key === todayKey) cell.fill = XL.todayFill;
-        }
-        day.setDate(day.getDate() + 1);
-      }
+  const renameMember = (from, to) => {
+    state.members = state.members.map((name) => (name === from ? to : name));
+    if (state.unavailable[from]) {
+      state.unavailable[to] = state.unavailable[from];
+      delete state.unavailable[from];
     }
-  };
-
-  const addListSheet = (workbook) => {
-    const sheet = workbook.addWorksheet("근무 목록");
-    sheet.columns = [{ width: 14 }, { width: 8 }, { width: 14 }, { width: 14 }];
-    styleHeaderRow(sheet.addRow(["날짜", "요일", "오전", "오후"]));
-    currentWorkdays().forEach((key) => {
-      const [year, month, date] = key.split("-").map(Number);
-      const duty = state.schedule[key] || {};
-      const row = sheet.addRow([key, WEEKDAYS[new Date(year, month - 1, date).getDay()], duty.AM || "미배정", duty.PM || "미배정"]);
-      row.eachCell((cell) => {
-        cell.border = allBorders;
-        cell.alignment = { horizontal: "center" };
-        if (cell.value === "미배정") cell.font = { color: XL.red };
-      });
-    });
-    sheet.views = [{ state: "frozen", ySplit: 1 }];
-  };
-
-  const addMemberSheet = (workbook) => {
-    const sheet = workbook.addWorksheet("인원별 집계");
-    sheet.columns = [{ width: 14 }, { width: 10 }, { width: 10 }, { width: 10 }];
-    styleHeaderRow(sheet.addRow(["이름", "오전", "오후", "합계"]));
-    const counts = Object.fromEntries(state.members.map((name) => [name, { AM: 0, PM: 0 }]));
-    currentWorkdays().forEach((key) => {
-      const duty = state.schedule[key] || {};
+    Object.values(state.schedule).forEach((duty) => {
       HALVES.forEach((half) => {
-        if (counts[duty[half]]) counts[duty[half]][half] += 1;
-      });
-    });
-    state.members.forEach((name) => {
-      const { AM, PM } = counts[name];
-      sheet.addRow([name, AM, PM, AM + PM]).eachCell((cell) => {
-        cell.border = allBorders;
-        cell.alignment = { horizontal: "center" };
+        if (duty[half] === from) duty[half] = to;
       });
     });
   };
 
-  const downloadBlob = (blob, fileName) => {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName;
-    document.body.append(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
-
-  const exportButton = $("btn_export_excel");
-  exportButton?.addEventListener("click", async () => {
-    const title = `${state.year}년 ${state.month}월`;
-    exportButton.disabled = true;
-    try {
-      const ExcelJS = await loadExcelJs();
-      const workbook = new ExcelJS.Workbook();
-      workbook.creator = "SSMS";
-      workbook.created = new Date();
-      addCalendarSheet(workbook, title);
-      addListSheet(workbook);
-      addMemberSheet(workbook);
-
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-      downloadBlob(blob, `전산근무표_${state.year}-${pad(state.month)}.xlsx`);
-      announce(`${title} 근무표를 엑셀 파일로 내보냈습니다.`);
-    } catch (error) {
-      announce("엑셀 파일을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.");
-    } finally {
-      exportButton.disabled = false;
+  const saveEdit = () => {
+    const input = $("member_edit");
+    const from = editingMember;
+    const to = input.value.trim();
+    const error = validateMemberName(to, from);
+    setFieldError(input, error, MEMBER_HINT);
+    if (error) {
+      input.focus();
+      return;
     }
+    editingMember = null;
+    if (to !== from) {
+      renameMember(from, to);
+      save();
+    }
+    render();
+    focusMemberButton(to, "edit");
+    announce(to === from ? "이름이 변경되지 않았습니다." : `투입 인원 이름을 변경했습니다. ${from}에서 ${to}`);
+  };
+
+  const cancelEdit = () => {
+    const name = editingMember;
+    editingMember = null;
+    renderMemberEditor();
+    focusMemberButton(name, "edit");
+  };
+
+  memberForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const name = memberName.value.trim();
+    const error = validateMemberName(name);
+    setFieldError(memberName, error, MEMBER_HINT);
+    if (error) {
+      memberName.focus();
+      return;
+    }
+    state.members = [...state.members, name];
+    save();
+    render();
+    memberForm.reset();
+    memberName.focus();
+    announce(`투입 인원을 추가했습니다. ${name}`);
+  });
+
+  memberList?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-action]");
+    if (!button) return;
+    const { action, member } = button.dataset;
+
+    if (action === "edit") {
+      editingMember = member;
+      renderMemberEditor();
+      const input = $("member_edit");
+      input.focus();
+      input.select();
+    } else if (action === "save") {
+      saveEdit();
+    } else if (action === "cancel") {
+      cancelEdit();
+    } else if (action === "delete" && typeof krds_modal !== "undefined") {
+      pendingDelete = member;
+      $("member_delete_message").textContent = `'${member}' 인원을 삭제합니다. 등록된 불가일도 함께 삭제되며, 이미 편성된 근무는 그대로 남습니다.`;
+      // krds_modal이 닫힐 때 초점을 돌려줄 수 있도록 트리거 표시 (ui-script.js의 open-modal 처리와 동일)
+      button.classList.add("modal-opened");
+      button.setAttribute("data-modal-id", "modal_member_delete");
+      krds_modal.openModal("modal_member_delete");
+    }
+  });
+
+  memberList?.addEventListener("keydown", (event) => {
+    if (event.target.id !== "member_edit") return;
+    if (event.key === "Enter") {
+      event.preventDefault();
+      saveEdit();
+    } else if (event.key === "Escape") {
+      cancelEdit();
+    }
+  });
+
+  $("btn_member_delete")?.addEventListener("click", () => {
+    const name = pendingDelete;
+    if (!name) return;
+    const index = state.members.indexOf(name);
+    const prev = state.members[index - 1];
+    pendingDelete = null;
+
+    state.members = state.members.filter((n) => n !== name);
+    delete state.unavailable[name];
+    save();
+    render();
+    announce(`투입 인원을 삭제했습니다. ${name}. 이미 편성된 근무는 근무 자동 편성으로 다시 짤 수 있습니다.`);
+    // 모달이 닫힌 뒤 이전 인원, 없으면 목록으로 초점 이동
+    setTimeout(() => focusMemberButton(prev || state.members[0], "delete"), 400);
   });
 
   render();

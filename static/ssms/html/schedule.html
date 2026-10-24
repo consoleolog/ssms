@@ -15,10 +15,7 @@
 			<!-- 페이지 제목 -->
 			<div class="ssms-schedule__header">
 				<h2 class="ssms-schedule__title">전산근무표</h2>
-				<div class="ssms-schedule__actions">
-					<button type="button" class="krds-btn medium secondary" id="btn_export_excel">엑셀 내보내기</button>
-					<button type="button" class="krds-btn medium primary" id="btn_auto_assign">근무 자동 편성</button>
-				</div>
+				<button type="button" class="krds-btn medium primary" id="btn_auto_assign">근무 자동 편성</button>
 			</div>
 			<!-- //페이지 제목 -->
 
@@ -129,6 +126,32 @@
 							<tbody id="members_body"></tbody>
 						</table>
 					</div>
+
+					<!-- 투입 인원 수정 -->
+					<div class="krds-disclosure conts-expand-area ssms-member">
+						<button type="button" class="btn-conts-expand">투입 인원 수정</button>
+						<div class="expand-wrap">
+							<div class="expand-in">
+								<form id="member_form" novalidate>
+									<div class="fieldset">
+										<div class="form-group">
+											<div class="form-tit">
+												<label for="member_name">이름</label>
+											</div>
+											<div class="form-conts">
+												<input type="text" id="member_name" class="krds-input" maxlength="20" autocomplete="off" aria-describedby="member_name_hint">
+											</div>
+											<p class="form-hint" id="member_name_hint">20자 이내로 입력해 주세요.</p>
+										</div>
+										<button type="submit" class="krds-btn medium secondary">인원 추가</button>
+									</div>
+								</form>
+								<!-- 인원 목록(수정, 삭제)은 schedule.js에서 렌더링 -->
+								<ul class="ssms-member__list" id="member_list" aria-label="투입 인원 목록" tabindex="-1"></ul>
+							</div>
+						</div>
+					</div>
+					<!-- //투입 인원 수정 -->
 				</aside>
 				<!-- //투입 인원 -->
 			</div>
@@ -175,10 +198,36 @@
 </section>
 <!-- //근무 불가일 등록 모달 -->
 
+<!-- 투입 인원 삭제 확인 모달 -->
+<section id="modal_member_delete" class="krds-modal fade" role="dialog" aria-labelledby="tit_modal_member_delete">
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 id="tit_modal_member_delete" class="modal-title">투입 인원 삭제</h2>
+			</div>
+			<div class="modal-conts">
+				<div class="conts-area">
+					<p id="member_delete_message"></p>
+				</div>
+			</div>
+			<div class="modal-btn btn-wrap">
+				<button type="button" class="krds-btn medium tertiary close-modal">취소</button>
+				<button type="button" class="krds-btn medium primary close-modal" id="btn_member_delete">삭제</button>
+			</div>
+			<button type="button" class="krds-btn medium icon btn-close close-modal">
+				<span class="sr-only">닫기</span>
+				<i class="svg-icon ico-popup-close"></i>
+			</button>
+		</div>
+	</div>
+	<div class="modal-back"></div>
+</section>
+<!-- //투입 인원 삭제 확인 모달 -->
+
 <!--
 	근무 편성 초기 데이터
 	- 처음 실행할 때만 사용하고, 이후 변경 내용은 브라우저 localStorage("ssms.schedule")에 저장된다
-	- members: 투입 인원 (화면에서 관리하지 않으므로 여기서 수정)
+	- members: 투입 인원 이름 목록
 	- holidays: { "YYYY-MM-DD": "공휴일명" }
 	- unavailable: { 이름: ["YYYY-MM-DD_AM" | "YYYY-MM-DD_PM"] }
 	- schedule: { "YYYY-MM-DD": { "AM": 이름, "PM": 이름 } }

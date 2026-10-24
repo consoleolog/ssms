@@ -7,7 +7,6 @@
   padding-bottom: var(--krds-padding-8);
 }
 .ssms-schedule__header,
-.ssms-schedule__actions,
 .ssms-schedule__toolbar,
 .ssms-schedule__nav,
 .ssms-schedule__filter {
@@ -164,4 +163,30 @@
   gap: var(--krds-gap-3);
   padding: var(--krds-padding-3) 0;
   border-bottom: 1px solid var(--krds-light-color-divider-gray-light);
+}
+
+/* 투입 인원 수정 (KRDS 디스클로저 내부) */
+.ssms-member {
+  margin-top: var(--krds-gap-5);
+}
+.ssms-member__list {
+  margin-top: var(--krds-gap-5);
+  border-top: 1px solid var(--krds-light-color-divider-gray-light);
+}
+.ssms-member__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--krds-gap-2);
+  padding: var(--krds-padding-3) 0;
+  border-bottom: 1px solid var(--krds-light-color-divider-gray-light);
+}
+.ssms-member__item--editing {
+  flex-direction: column;
+  align-items: stretch;
+}
+.ssms-member__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--krds-gap-2);
 }
