@@ -358,6 +358,241 @@
   const DATE_HINT = "예: 2026-10-05";
   const NAME_HINT = "예: 임시공휴일 (20자 이내)";
 
+  /*
+   * KRDS 달력(날짜 선택) 컴포넌트
+   * - KRDS 마크업과 CSS를 그대로 쓰고, 날짜 생성·월 이동·선택 동작은 여기서 구현한다
+   *   (ui-script.js의 krds_calendar는 정적 예시용이라 날짜를 만들지 않고 YYYY.MM.DD로 입력하므로 사용하지 않음)
+   * - 달력은 열 때 렌더링하므로 페이지 로드 시점에 krds_calendar가 이 요소에 이벤트를 걸지 않는다
+   */
+  const createDatePicker = ({ conts, input, button, disabledReason = () => "", defaultView = () => new Date() }) => {
+    let area = null;
+    let view = null; // { year, month }
+    let selected = null; // YYYY-MM-DD
+    let openList = null; // "year" | "month" | null
+
+    const isOpen = () => !!area && area.classList.contains("active");
+    const dateLabel = (key) => {
+      const [y, m, d] = key.split("-").map(Number);
+      return `${y}년 ${m}월 ${d}일 ${WEEKDAYS[new Date(y, m - 1, d).getDay()]}요일`;
+    };
+
+    const renderList = (type) => {
+      const items =
+        type === "year"
+          ? Array.from({ length: 11 }, (_, i) => view.year - 5 + i).map((y) => [y, `${y}년`, y === view.year])
+          : Array.from({ length: 12 }, (_, i) => i + 1).map((m) => [m, `${pad(m)}월`, m === view.month]);
+      return items
+        .map(([value, label, active]) => `<li role="none"><button type="button" role="option" data-${type}="${value}" aria-selected="${active}"${active ? ' class="active"' : ""}>${label}</button></li>`)
+        .join("");
+    };
+
+    const renderDays = () => {
+      const first = new Date(view.year, view.month - 1, 1);
+      const day = new Date(first);
+      day.setDate(1 - first.getDay());
+      const todayKey = toKey(new Date());
+      const rows = [];
+      for (let w = 0; w < 6; w += 1) {
+        const cells = [];
+        for (let i = 0; i < 7; i += 1) {
+          const key = toKey(day);
+          const other = day.getMonth() + 1 !== view.month;
+          const reason = other ? "" : disabledReason(key);
+          const cls = [
+            other ? (day < first ? "old" : "new") : "",
+            day.getDay() === 0 || state.holidays[key] ? "day-off" : "",
+            reason ? "disabled" : "",
+            key === todayKey ? "today" : "",
+            key === selected && !other ? "period start end" : "",
+          ].filter(Boolean).join(" ");
+          const label = `${dateLabel(key)}${key === todayKey ? " 오늘" : ""}${reason ? ` ${reason}` : ""}`;
+          cells.push(`<td${cls ? ` class="${cls}"` : ""}><button type="button" class="btn-set-date" data-date="${key}" aria-label="${escapeHtml(label)}"${other || reason ? " disabled" : ""}${key === selected && !other ? ' aria-pressed="true"' : ""}><span>${day.getDate()}</span></button></td>`);
+          day.setDate(day.getDate() + 1);
+        }
+        rows.push(`<tr>${cells.join("")}</tr>`);
+        if (day.getMonth() + 1 !== view.month && day > first) break;
+      }
+      return rows.join("");
+    };
+
+    const render = (focusKey) => {
+      area.innerHTML = `
+        <div class="calendar-wrap single" role="dialog" aria-label="날짜 선택 달력" tabindex="-1">
+          <div class="calendar-head">
+            <button type="button" class="btn-cal-move prev" data-move="-1"><span class="sr-only">이전 달</span></button>
+            <div class="calendar-switch-wrap">
+              ${["year", "month"]
+                .map(
+                  (type) => `<div class="calendar-drop-down">
+                    <button type="button" class="btn-cal-switch ${type}" data-switch="${type}" aria-label="${type === "year" ? "연도" : "월"} 선택" aria-haspopup="listbox" aria-expanded="${openList === type}">${type === "year" ? `${view.year}년` : `${pad(view.month)}월`}</button>
+                    <div class="calendar-select calendar-${type === "year" ? "year" : "mon"}-wrap${openList === type ? " active" : ""}">
+                      <ul class="sel ${type}" role="listbox" aria-label="${type === "year" ? "연도" : "월"}">${renderList(type)}</ul>
+                    </div>
+                  </div>`
+                )
+                .join("")}
+            </div>
+            <button type="button" class="btn-cal-move next" data-move="1"><span class="sr-only">다음 달</span></button>
+          </div>
+          <div class="calendar-body">
+            <div class="calendar-table-wrap">
+              <table class="calendar-tbl">
+                <caption>${view.year}년 ${view.month}월</caption>
+                <thead><tr>${WEEKDAYS.map((w) => `<th scope="col">${w}</th>`).join("")}</tr></thead>
+                <tbody>${renderDays()}</tbody>
+              </table>
+            </div>
+          </div>
+          <div class="calendar-footer">
+            <div class="calendar-btn-wrap">
+              <button type="button" class="krds-btn small text" data-action="today">오늘</button>
+              <button type="button" class="krds-btn small tertiary" data-action="cancel">취소</button>
+              <button type="button" class="krds-btn small primary" data-action="confirm">확인</button>
+            </div>
+          </div>
+        </div>`;
+      if (focusKey) area.querySelector(`.btn-set-date[data-date="${focusKey}"]:not(:disabled)`)?.focus();
+    };
+
+    const close = (returnFocus = true) => {
+      if (!isOpen()) return;
+      area.classList.remove("active");
+      openList = null;
+      button.setAttribute("aria-expanded", "false");
+      if (returnFocus) button.focus();
+    };
+
+    const open = () => {
+      const typed = parseDateKey(input.value);
+      selected = typed;
+      const base = typed ? new Date(typed.replace(/-/g, "/")) : defaultView();
+      view = { year: base.getFullYear(), month: base.getMonth() + 1 };
+      openList = null;
+      if (!area) {
+        area = document.createElement("div");
+        area.className = "krds-calendar-area";
+        area.id = `${input.id}_calendar`;
+        conts.append(area);
+        button.setAttribute("aria-controls", area.id);
+        bindArea();
+      }
+      render();
+      area.classList.add("active");
+      button.setAttribute("aria-expanded", "true");
+      const target = area.querySelector(".btn-set-date[aria-pressed='true']") || area.querySelector("td.today .btn-set-date:not(:disabled)");
+      setTimeout(() => (target || area.querySelector(".calendar-wrap")).focus(), 50);
+    };
+
+    const moveView = (offset, focusKey) => {
+      const next = new Date(view.year, view.month - 1 + offset, 1);
+      view = { year: next.getFullYear(), month: next.getMonth() + 1 };
+      openList = null;
+      render(focusKey);
+    };
+
+    const bindArea = () => {
+      area.addEventListener("click", (event) => {
+        const target = event.target.closest("button");
+        if (!target) return;
+        if (target.dataset.move) {
+          moveView(Number(target.dataset.move));
+          area.querySelector(`.btn-cal-move.${Number(target.dataset.move) < 0 ? "prev" : "next"}`).focus();
+        } else if (target.dataset.switch) {
+          const type = target.dataset.switch;
+          openList = openList === type ? null : type;
+          render();
+          area.querySelector(openList ? `.calendar-select.active button.active` : `[data-switch="${type}"]`)?.focus();
+        } else if (target.dataset.year || target.dataset.month) {
+          if (target.dataset.year) view.year = Number(target.dataset.year);
+          if (target.dataset.month) view.month = Number(target.dataset.month);
+          const type = target.dataset.year ? "year" : "month";
+          openList = null;
+          render();
+          area.querySelector(`[data-switch="${type}"]`).focus();
+        } else if (target.dataset.date) {
+          selected = target.dataset.date;
+          render(selected);
+        } else if (target.dataset.action === "today") {
+          const today = new Date();
+          view = { year: today.getFullYear(), month: today.getMonth() + 1 };
+          const key = toKey(today);
+          if (!disabledReason(key)) selected = key;
+          render(key);
+          if (disabledReason(key)) area.querySelector('[data-action="today"]').focus();
+        } else if (target.dataset.action === "cancel") {
+          close();
+        } else if (target.dataset.action === "confirm") {
+          if (selected) {
+            input.value = selected;
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+          close();
+        }
+      });
+
+      area.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          event.stopPropagation();
+          if (openList) {
+            const type = openList;
+            openList = null;
+            render();
+            area.querySelector(`[data-switch="${type}"]`).focus();
+          } else {
+            close();
+          }
+          return;
+        }
+        // 날짜 이동: ←→ 하루, ↑↓ 일주일 (다른 달로 넘어가면 달력도 이동)
+        const dateButton = event.target.closest(".btn-set-date");
+        const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[event.key];
+        if (dateButton && step) {
+          event.preventDefault();
+          const [y, m, d] = dateButton.dataset.date.split("-").map(Number);
+          const next = new Date(y, m - 1, d + step);
+          const key = toKey(next);
+          if (next.getMonth() + 1 !== view.month || next.getFullYear() !== view.year) {
+            view = { year: next.getFullYear(), month: next.getMonth() + 1 };
+            render();
+          }
+          const nextButton = area.querySelector(`.btn-set-date[data-date="${key}"]`);
+          if (nextButton && !nextButton.disabled) nextButton.focus();
+          else area.querySelector(`.btn-set-date[data-date="${dateButton.dataset.date}"]`)?.focus();
+          return;
+        }
+        // 초점 가두기 (렌더링마다 요소가 바뀌므로 매번 다시 찾는다)
+        if (event.key === "Tab") {
+          const focusables = [...area.querySelectorAll("button:not(:disabled)")].filter((el) => el.offsetParent !== null);
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          if (event.shiftKey && (document.activeElement === first || document.activeElement === area.querySelector(".calendar-wrap"))) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
+      });
+    };
+
+    button.addEventListener("click", () => (isOpen() ? close() : open()));
+    // 날짜를 누르면 달력을 다시 그리므로 event.target 대신 클릭 당시의 경로로 바깥 클릭을 판단한다
+    document.addEventListener("click", (event) => {
+      if (isOpen() && !event.composedPath().includes(conts)) close(false);
+    });
+  };
+
+  if (holidayDate && $("btn_holiday_calendar")) {
+    createDatePicker({
+      conts: $("holiday_date_conts"),
+      input: holidayDate,
+      button: $("btn_holiday_calendar"),
+      disabledReason: (key) => (state.holidays[key] ? `이미 등록된 공휴일 ${state.holidays[key]}` : ""),
+      defaultView: () => new Date(state.year, state.month - 1, 1),
+    });
+  }
+
   holidayForm?.addEventListener("submit", (event) => {
     event.preventDefault();
     const key = parseDateKey(holidayDate.value);

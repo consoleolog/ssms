@@ -20,6 +20,9 @@
 
 			<!-- 달력 툴바 -->
 			<div class="ssms-schedule__toolbar">
+				<div class="ssms-schedule__today">
+					<button type="button" class="krds-btn small tertiary" id="btn_today">오늘</button>
+				</div>
 				<div class="ssms-schedule__nav">
 					<button type="button" class="krds-btn medium icon border" id="btn_prev_month">
 						<span class="sr-only">이전 달</span>
@@ -30,7 +33,6 @@
 						<span class="sr-only">다음 달</span>
 						<i class="svg-icon ico-angle right"></i>
 					</button>
-					<button type="button" class="krds-btn small tertiary" id="btn_today">오늘</button>
 				</div>
 				<div class="ssms-schedule__actions">
 					<div class="krds-badge-wrap" aria-label="근무 범례">
@@ -58,8 +60,15 @@
 										<div class="form-tit">
 											<label for="holiday_date">날짜</label>
 										</div>
-										<div class="form-conts">
-											<input type="text" id="holiday_date" class="krds-input" placeholder="YYYY-MM-DD" inputmode="numeric" maxlength="10" autocomplete="off" aria-describedby="holiday_date_hint">
+										<!-- KRDS 날짜 입력 필드: 직접 입력 + 달력 버튼, 달력(.krds-calendar-area)은 schedule.js에서 렌더링 -->
+										<div class="form-conts calendar-conts" id="holiday_date_conts">
+											<div class="calendar-input">
+												<input type="text" id="holiday_date" class="krds-input datepicker" placeholder="YYYY-MM-DD" inputmode="numeric" maxlength="10" autocomplete="off" aria-describedby="holiday_date_hint">
+												<button type="button" class="krds-btn medium icon form-btn-datepicker" id="btn_holiday_calendar" aria-haspopup="dialog" aria-expanded="false">
+													<span class="sr-only">달력 열기</span>
+													<i class="svg-icon ico-calendar"></i>
+												</button>
+											</div>
 										</div>
 										<p class="form-hint" id="holiday_date_hint">예: 2026-10-05</p>
 									</div>
