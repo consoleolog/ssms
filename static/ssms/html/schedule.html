@@ -15,7 +15,7 @@
 			<!-- 페이지 제목 -->
 			<div class="ssms-schedule__header">
 				<h2 class="ssms-schedule__title">전산근무표</h2>
-				<button type="button" class="krds-btn medium primary">근무 등록</button>
+				<button type="button" class="krds-btn medium primary" id="btn_auto_assign">근무 자동 편성</button>
 			</div>
 			<!-- //페이지 제목 -->
 
@@ -46,6 +46,7 @@
 				</div>
 			</div>
 			<!-- //달력 툴바 -->
+			<p class="sr-only" id="schedule_status" aria-live="polite"></p>
 
 			<div class="ssms-schedule__body">
 				<!-- 달력 -->
@@ -85,7 +86,7 @@
 										<span class="ssms-calendar__date"><span class="sr-only">9월 </span>30</span>
 									</div>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-01">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">1</span>
 									</div>
@@ -94,7 +95,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 최유진</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-02">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">2</span>
 									</div>
@@ -103,7 +104,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 정하늘</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday" data-date="2026-10-03">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">3</span>
 										<span class="ssms-calendar__holiday">개천절</span>
@@ -111,18 +112,18 @@
 								</td>
 							</tr>
 							<tr>
-								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday" data-date="2026-10-04">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">4</span>
 									</div>
 								</td>
-								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday" data-date="2026-10-05">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">5</span>
 										<span class="ssms-calendar__holiday">대체공휴일</span>
 									</div>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-06">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">6</span>
 									</div>
@@ -131,7 +132,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 박지훈</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-07">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">7</span>
 									</div>
@@ -140,7 +141,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 최유진</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-08">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">8</span>
 									</div>
@@ -149,25 +150,25 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 정하늘</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday" data-date="2026-10-09">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">9</span>
 										<span class="ssms-calendar__holiday">한글날</span>
 									</div>
 								</td>
-								<td class="ssms-calendar__cell ssms-calendar__cell--saturday">
+								<td class="ssms-calendar__cell ssms-calendar__cell--saturday" data-date="2026-10-10">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">10</span>
 									</div>
 								</td>
 							</tr>
 							<tr>
-								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday" data-date="2026-10-11">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">11</span>
 									</div>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-12">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">12</span>
 									</div>
@@ -176,7 +177,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 박지훈</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-13">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">13</span>
 									</div>
@@ -185,7 +186,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 최유진</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-14">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">14</span>
 									</div>
@@ -194,7 +195,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 정하늘</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-15">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">15</span>
 									</div>
@@ -203,7 +204,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 강도윤</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-16">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">16</span>
 									</div>
@@ -212,19 +213,19 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 김민수</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell ssms-calendar__cell--saturday">
+								<td class="ssms-calendar__cell ssms-calendar__cell--saturday" data-date="2026-10-17">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">17</span>
 									</div>
 								</td>
 							</tr>
 							<tr>
-								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday" data-date="2026-10-18">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">18</span>
 									</div>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-19">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">19</span>
 									</div>
@@ -233,7 +234,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 최유진</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-20">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">20</span>
 									</div>
@@ -242,7 +243,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 정하늘</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-21">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">21</span>
 									</div>
@@ -251,7 +252,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 강도윤</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-22">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">22</span>
 									</div>
@@ -260,7 +261,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 김민수</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-23">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">23</span>
 									</div>
@@ -269,7 +270,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 이서연</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell ssms-calendar__cell--saturday ssms-calendar__cell--today" aria-current="date">
+								<td class="ssms-calendar__cell ssms-calendar__cell--saturday ssms-calendar__cell--today" data-date="2026-10-24" aria-current="date">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">24</span>
 										<span class="krds-badge bg-primary">오늘</span>
@@ -277,12 +278,12 @@
 								</td>
 							</tr>
 							<tr>
-								<td class="ssms-calendar__cell ssms-calendar__cell--holiday">
+								<td class="ssms-calendar__cell ssms-calendar__cell--holiday" data-date="2026-10-25">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">25</span>
 									</div>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-26">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">26</span>
 									</div>
@@ -291,7 +292,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 정하늘</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-27">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">27</span>
 									</div>
@@ -300,7 +301,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 강도윤</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-28">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">28</span>
 									</div>
@@ -309,7 +310,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 김민수</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-29">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">29</span>
 									</div>
@@ -318,7 +319,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 이서연</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell">
+								<td class="ssms-calendar__cell" data-date="2026-10-30">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">30</span>
 									</div>
@@ -327,7 +328,7 @@
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 박지훈</li>
 									</ul>
 								</td>
-								<td class="ssms-calendar__cell ssms-calendar__cell--saturday">
+								<td class="ssms-calendar__cell ssms-calendar__cell--saturday" data-date="2026-10-31">
 									<div class="ssms-calendar__head">
 										<span class="ssms-calendar__date">31</span>
 									</div>
@@ -355,35 +356,35 @@
 							</tr>
 							</thead>
 							<tbody>
-							<tr>
+							<tr data-member="김민수">
 								<th scope="row">김민수</th>
-								<td>4</td>
-								<td>3</td>
+								<td data-count="am">4</td>
+								<td data-count="pm">3</td>
 							</tr>
-							<tr>
+							<tr data-member="이서연">
 								<th scope="row">이서연</th>
-								<td>5</td>
-								<td>2</td>
+								<td data-count="am">5</td>
+								<td data-count="pm">2</td>
 							</tr>
-							<tr>
+							<tr data-member="박지훈">
 								<th scope="row">박지훈</th>
-								<td>3</td>
-								<td>3</td>
+								<td data-count="am">3</td>
+								<td data-count="pm">3</td>
 							</tr>
-							<tr>
+							<tr data-member="최유진">
 								<th scope="row">최유진</th>
-								<td>2</td>
-								<td>4</td>
+								<td data-count="am">2</td>
+								<td data-count="pm">4</td>
 							</tr>
-							<tr>
+							<tr data-member="정하늘">
 								<th scope="row">정하늘</th>
-								<td>3</td>
-								<td>5</td>
+								<td data-count="am">3</td>
+								<td data-count="pm">5</td>
 							</tr>
-							<tr>
+							<tr data-member="강도윤">
 								<th scope="row">강도윤</th>
-								<td>3</td>
-								<td>3</td>
+								<td data-count="am">3</td>
+								<td data-count="pm">3</td>
 							</tr>
 							</tbody>
 						</table>
@@ -689,7 +690,7 @@
 			</div>
 			<div class="modal-btn btn-wrap">
 				<button type="button" class="krds-btn medium tertiary close-modal">취소</button>
-				<button type="button" class="krds-btn medium primary close-modal">저장</button>
+				<button type="button" class="krds-btn medium primary close-modal" id="btn_unavailable_save">저장</button>
 			</div>
 			<button type="button" class="krds-btn medium icon btn-close close-modal">
 				<span class="sr-only">닫기</span>
@@ -701,6 +702,51 @@
 </section>
 <!-- //근무 불가일 등록 모달 -->
 
+<!-- 근무 편성 데이터 (서버에서 내려주는 값으로 교체) -->
+<script type="application/json" id="schedule_data">
+	{
+		"year": 2026,
+		"month": 10,
+		"holidays": [
+			"2026-10-03",
+			"2026-10-05",
+			"2026-10-09"
+		],
+		"members": [
+			"김민수",
+			"이서연",
+			"박지훈",
+			"최유진",
+			"정하늘",
+			"강도윤"
+		],
+		"unavailable": {
+			"김민수": [
+				"2026-10-14_AM",
+				"2026-10-14_PM",
+				"2026-10-15_AM"
+			],
+			"이서연": [
+				"2026-10-22_PM"
+			],
+			"박지훈": [],
+			"최유진": [
+				"2026-10-27_AM",
+				"2026-10-28_AM",
+				"2026-10-29_PM"
+			],
+			"정하늘": [
+				"2026-10-07_PM"
+			],
+			"강도윤": [
+				"2026-10-20_AM",
+				"2026-10-20_PM"
+			]
+		}
+	}
+</script>
+
 <script src="../../krds/resources/js/component/ui-script.js"></script>
+<script src="../js/schedule.js"></script>
 </body>
 </html>
