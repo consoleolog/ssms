@@ -34,14 +34,16 @@
 					<button type="button" class="krds-btn small tertiary">오늘</button>
 				</div>
 				<div class="ssms-schedule__filter">
-					<div class="krds-badge-wrap" aria-label="근무 유형 범례">
+					<div class="krds-badge-wrap" aria-label="근무 범례">
 						<span class="krds-badge bg-light-primary">오전</span>
 						<span class="krds-badge bg-light-point">오후</span>
+						<span class="krds-badge bg-light-gray">불가</span>
 					</div>
 					<select class="krds-form-select small ssms-schedule__select" title="근무 유형 선택">
 						<option value="">전체 근무</option>
 						<option value="am">오전</option>
 						<option value="pm">오후</option>
+						<option value="off">불가</option>
 					</select>
 				</div>
 			</div>
@@ -137,7 +139,8 @@
 									</div>
 									<ul class="ssms-calendar__list">
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">오전</span> 김민수</li>
-										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 최유진</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 박지훈</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">불가</span> 정하늘</li>
 									</ul>
 								</td>
 								<td class="ssms-calendar__cell">
@@ -191,7 +194,8 @@
 									</div>
 									<ul class="ssms-calendar__list">
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">오전</span> 이서연</li>
-										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 정하늘</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 최유진</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">불가</span> 김민수</li>
 									</ul>
 								</td>
 								<td class="ssms-calendar__cell">
@@ -200,7 +204,8 @@
 									</div>
 									<ul class="ssms-calendar__list">
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">오전</span> 박지훈</li>
-										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 강도윤</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 정하늘</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">불가</span> 김민수</li>
 									</ul>
 								</td>
 								<td class="ssms-calendar__cell">
@@ -239,7 +244,8 @@
 									</div>
 									<ul class="ssms-calendar__list">
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">오전</span> 이서연</li>
-										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 정하늘</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 최유진</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">불가</span> 강도윤</li>
 									</ul>
 								</td>
 								<td class="ssms-calendar__cell">
@@ -257,7 +263,8 @@
 									</div>
 									<ul class="ssms-calendar__list">
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">오전</span> 최유진</li>
-										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 김민수</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 강도윤</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">불가</span> 이서연</li>
 									</ul>
 								</td>
 								<td class="ssms-calendar__cell">
@@ -298,6 +305,7 @@
 									<ul class="ssms-calendar__list">
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">오전</span> 박지훈</li>
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 강도윤</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">불가</span> 최유진</li>
 									</ul>
 								</td>
 								<td class="ssms-calendar__cell">
@@ -305,8 +313,9 @@
 										<span class="ssms-calendar__date">28</span>
 									</div>
 									<ul class="ssms-calendar__list">
-										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">오전</span> 최유진</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">오전</span> 정하늘</li>
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 김민수</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">불가</span> 최유진</li>
 									</ul>
 								</td>
 								<td class="ssms-calendar__cell">
@@ -315,7 +324,8 @@
 									</div>
 									<ul class="ssms-calendar__list">
 										<li class="ssms-calendar__item"><span class="krds-badge bg-light-primary">오전</span> 정하늘</li>
-										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 이서연</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-point">오후</span> 김민수</li>
+										<li class="ssms-calendar__item"><span class="krds-badge bg-light-gray">불가</span> 최유진</li>
 									</ul>
 								</td>
 								<td class="ssms-calendar__cell">
@@ -343,12 +353,13 @@
 					<h3 class="ssms-schedule__subtitle" id="tit_members">투입 인원 <span class="krds-badge bg-light-gray">6명</span></h3>
 					<div class="krds-table-wrap ssms-members">
 						<table class="tbl data">
-							<caption class="sr-only">2026년 10월 전산근무 투입 인원으로 이름, 오전 근무 횟수, 오후 근무 횟수로 구성되어 있습니다.</caption>
+							<caption class="sr-only">2026년 10월 전산근무 투입 인원으로 이름, 오전 근무 횟수, 오후 근무 횟수, 근무 불가일 수로 구성되어 있습니다.</caption>
 							<thead>
 							<tr>
 								<th scope="col">이름</th>
 								<th scope="col">오전</th>
 								<th scope="col">오후</th>
+								<th scope="col">불가일</th>
 							</tr>
 							</thead>
 							<tbody>
@@ -356,31 +367,49 @@
 								<th scope="row">김민수</th>
 								<td>4</td>
 								<td>3</td>
+								<td>
+									<button type="button" class="krds-btn xsmall secondary open-modal" data-target="modal_unavailable">2일<span class="sr-only"> 김민수 근무 불가일 선택</span></button>
+								</td>
 							</tr>
 							<tr>
 								<th scope="row">이서연</th>
 								<td>5</td>
-								<td>2</td>
+								<td>1</td>
+								<td>
+									<button type="button" class="krds-btn xsmall secondary open-modal" data-target="modal_unavailable">1일<span class="sr-only"> 이서연 근무 불가일 선택</span></button>
+								</td>
 							</tr>
 							<tr>
 								<th scope="row">박지훈</th>
 								<td>3</td>
-								<td>3</td>
+								<td>4</td>
+								<td>
+									<button type="button" class="krds-btn xsmall secondary open-modal" data-target="modal_unavailable">0일<span class="sr-only"> 박지훈 근무 불가일 선택</span></button>
+								</td>
 							</tr>
 							<tr>
 								<th scope="row">최유진</th>
-								<td>3</td>
-								<td>4</td>
+								<td>2</td>
+								<td>5</td>
+								<td>
+									<button type="button" class="krds-btn xsmall secondary open-modal" data-target="modal_unavailable">3일<span class="sr-only"> 최유진 근무 불가일 선택</span></button>
+								</td>
 							</tr>
 							<tr>
 								<th scope="row">정하늘</th>
-								<td>2</td>
-								<td>5</td>
+								<td>3</td>
+								<td>4</td>
+								<td>
+									<button type="button" class="krds-btn xsmall secondary open-modal" data-target="modal_unavailable">1일<span class="sr-only"> 정하늘 근무 불가일 선택</span></button>
+								</td>
 							</tr>
 							<tr>
 								<th scope="row">강도윤</th>
 								<td>3</td>
 								<td>3</td>
+								<td>
+									<button type="button" class="krds-btn xsmall secondary open-modal" data-target="modal_unavailable">1일<span class="sr-only"> 강도윤 근무 불가일 선택</span></button>
+								</td>
 							</tr>
 							</tbody>
 						</table>
@@ -391,6 +420,117 @@
 		</div>
 	</main>
 </div>
+
+<!-- 근무 불가일 선택 모달 -->
+<section id="modal_unavailable" class="krds-modal fade" role="dialog" aria-labelledby="tit_modal_unavailable">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2 id="tit_modal_unavailable" class="modal-title">김민수 근무 불가일 선택</h2>
+			</div>
+			<div class="modal-conts">
+				<div class="conts-area">
+					<fieldset class="fieldset">
+						<legend>2026년 10월 근무일</legend>
+						<p class="form-hint">근무에 들어갈 수 없는 날짜를 모두 선택해 주세요. 주말과 공휴일은 제외됩니다.</p>
+						<div class="krds-check-area ssms-unavailable__dates">
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_01" value="2026-10-01">
+								<label class="krds-form-chip-outline" for="chk_unavailable_01">1일 (목)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_02" value="2026-10-02">
+								<label class="krds-form-chip-outline" for="chk_unavailable_02">2일 (금)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_06" value="2026-10-06">
+								<label class="krds-form-chip-outline" for="chk_unavailable_06">6일 (화)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_07" value="2026-10-07">
+								<label class="krds-form-chip-outline" for="chk_unavailable_07">7일 (수)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_08" value="2026-10-08">
+								<label class="krds-form-chip-outline" for="chk_unavailable_08">8일 (목)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_12" value="2026-10-12">
+								<label class="krds-form-chip-outline" for="chk_unavailable_12">12일 (월)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_13" value="2026-10-13">
+								<label class="krds-form-chip-outline" for="chk_unavailable_13">13일 (화)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_14" value="2026-10-14" checked>
+								<label class="krds-form-chip-outline" for="chk_unavailable_14">14일 (수)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_15" value="2026-10-15" checked>
+								<label class="krds-form-chip-outline" for="chk_unavailable_15">15일 (목)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_16" value="2026-10-16">
+								<label class="krds-form-chip-outline" for="chk_unavailable_16">16일 (금)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_19" value="2026-10-19">
+								<label class="krds-form-chip-outline" for="chk_unavailable_19">19일 (월)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_20" value="2026-10-20">
+								<label class="krds-form-chip-outline" for="chk_unavailable_20">20일 (화)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_21" value="2026-10-21">
+								<label class="krds-form-chip-outline" for="chk_unavailable_21">21일 (수)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_22" value="2026-10-22">
+								<label class="krds-form-chip-outline" for="chk_unavailable_22">22일 (목)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_23" value="2026-10-23">
+								<label class="krds-form-chip-outline" for="chk_unavailable_23">23일 (금)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_26" value="2026-10-26">
+								<label class="krds-form-chip-outline" for="chk_unavailable_26">26일 (월)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_27" value="2026-10-27">
+								<label class="krds-form-chip-outline" for="chk_unavailable_27">27일 (화)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_28" value="2026-10-28">
+								<label class="krds-form-chip-outline" for="chk_unavailable_28">28일 (수)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_29" value="2026-10-29">
+								<label class="krds-form-chip-outline" for="chk_unavailable_29">29일 (목)</label>
+							</div>
+							<div class="krds-form-chip">
+								<input type="checkbox" class="checkbox" id="chk_unavailable_30" value="2026-10-30">
+								<label class="krds-form-chip-outline" for="chk_unavailable_30">30일 (금)</label>
+							</div>
+						</div>
+					</fieldset>
+				</div>
+			</div>
+			<div class="modal-btn btn-wrap">
+				<button type="button" class="krds-btn medium tertiary close-modal">취소</button>
+				<button type="button" class="krds-btn medium primary close-modal">저장</button>
+			</div>
+			<button type="button" class="krds-btn medium icon btn-close close-modal">
+				<span class="sr-only">닫기</span>
+				<i class="svg-icon ico-popup-close"></i>
+			</button>
+		</div>
+	</div>
+	<div class="modal-back"></div>
+</section>
+<!-- //근무 불가일 선택 모달 -->
 
 <script src="../../krds/resources/js/component/ui-script.js"></script>
 </body>
