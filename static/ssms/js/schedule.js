@@ -145,6 +145,7 @@
     const holiday = state.holidays[key];
     const weekday = date.getDay();
     const isToday = key === toKey(new Date());
+    const isWorkday = !isOtherMonth && weekday !== 0 && weekday !== 6 && !holiday;
 
     const modifiers = [];
     if (isOtherMonth) modifiers.push("other-month");
@@ -163,7 +164,7 @@
 
     return `<td class="${className}"${isOtherMonth ? "" : ` data-date="${key}"`}${isToday ? ` aria-current="date"` : ""}>
       <div class="ssms-calendar__head">${head}</div>
-      ${isOtherMonth ? "" : renderDutyList(key)}
+      ${isWorkday ? renderDutyList(key) : ""}
     </td>`;
   };
 
@@ -214,9 +215,38 @@
       .join("");
   };
 
+  /* 공휴일 설정 (표시 중인 달의 공휴일 목록) */
+  const holidayList = $("holiday_list");
+  const formatDate = (key) => {
+    const [year, month, day] = key.split("-").map(Number);
+    return `${month}월 ${day}일 (${WEEKDAYS[new Date(year, month - 1, day).getDay()]})`;
+  };
+
+  const renderHolidayList = () => {
+    if (!holidayList) return;
+    const prefix = `${state.year}-${pad(state.month)}-`;
+    const keys = Object.keys(state.holidays)
+      .filter((key) => key.startsWith(prefix))
+      .sort();
+
+    $("holiday_list_title").textContent = `${state.year}년 ${state.month}월 공휴일`;
+    holidayList.innerHTML = keys.length
+      ? keys
+          .map((key) => {
+            const label = `${formatDate(key)} ${escapeHtml(state.holidays[key])}`;
+            return `<li class="ssms-holiday__item">
+              <span>${label}</span>
+              <button type="button" class="krds-btn xsmall tertiary" data-holiday="${key}" aria-label="${label} 삭제">삭제</button>
+            </li>`;
+          })
+          .join("")
+      : `<li class="ssms-holiday__item">등록된 공휴일이 없습니다.</li>`;
+  };
+
   const render = () => {
     renderCalendar();
     renderMembers();
+    renderHolidayList();
   };
 
   const moveMonth = (offset) => {
@@ -239,8 +269,82 @@
     renderCalendar();
   });
 
-  /* 자동 편성 */
   const status = $("schedule_status");
+  const announce = (message) => {
+    if (status) status.textContent = message;
+  };
+
+  // KRDS 입력 필드 상태: form-conts.is-error + form-hint-invalid
+  const setFieldError = (input, message, defaultHint) => {
+    const group = input.closest(".form-group");
+    const hint = group.querySelector("[id$='_hint']");
+    group.querySelector(".form-conts").classList.toggle("is-error", !!message);
+    hint.className = message ? "form-hint-invalid" : "form-hint";
+    hint.textContent = message || defaultHint;
+    input.setAttribute("aria-invalid", message ? "true" : "false");
+  };
+
+  const parseDateKey = (value) => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+    if (!match) return null;
+    const [year, month, day] = match.slice(1).map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.getMonth() === month - 1 && date.getDate() === day ? toKey(date) : null;
+  };
+
+  const holidayForm = $("holiday_form");
+  const holidayDate = $("holiday_date");
+  const holidayName = $("holiday_name");
+  const DATE_HINT = "예: 2026-10-05";
+  const NAME_HINT = "예: 임시공휴일 (20자 이내)";
+
+  holidayForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const key = parseDateKey(holidayDate.value);
+    const name = holidayName.value.trim();
+
+    let dateError = "";
+    if (!holidayDate.value.trim()) dateError = "날짜를 입력해 주세요.";
+    else if (!key) dateError = "날짜를 YYYY-MM-DD 형식의 올바른 날짜로 입력해 주세요. 예: 2026-10-05";
+    else if (state.holidays[key]) dateError = `이미 등록된 공휴일입니다. (${formatDate(key)} ${state.holidays[key]})`;
+    const nameError = name ? "" : "공휴일명을 입력해 주세요.";
+
+    setFieldError(holidayDate, dateError, DATE_HINT);
+    setFieldError(holidayName, nameError, NAME_HINT);
+    if (dateError || nameError) {
+      (dateError ? holidayDate : holidayName).focus();
+      return;
+    }
+
+    state.holidays[key] = name;
+    delete state.schedule[key];
+    // 추가한 공휴일이 보이도록 해당 달로 이동
+    const [year, month] = key.split("-").map(Number);
+    state.year = year;
+    state.month = month;
+    render();
+
+    holidayForm.reset();
+    holidayDate.focus();
+    announce(`공휴일을 추가했습니다. ${year}년 ${formatDate(key)} ${name}`);
+  });
+
+  holidayList?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-holiday]");
+    if (!button) return;
+    const key = button.dataset.holiday;
+    const name = state.holidays[key];
+    const prevKey = button.closest("li").previousElementSibling?.querySelector("[data-holiday]")?.dataset.holiday;
+
+    delete state.holidays[key];
+    render();
+
+    // 삭제 후 이전 항목, 없으면 목록으로 초점 이동
+    (holidayList.querySelector(`[data-holiday="${prevKey}"]`) || holidayList.querySelector("[data-holiday]") || holidayList).focus();
+    announce(`공휴일을 삭제했습니다. ${formatDate(key)} ${name}. 이 날짜의 근무는 자동 편성으로 채울 수 있습니다.`);
+  });
+
+  /* 자동 편성 */
   $("btn_auto_assign")?.addEventListener("click", () => {
     const workdays = currentWorkdays();
     const { days } = assignDuties({ workdays, members: state.members, unavailable: state.unavailable });
@@ -250,9 +354,7 @@
     render();
 
     const unassigned = days.reduce((sum, day) => sum + HALVES.filter((half) => !day[half]).length, 0);
-    if (status) {
-      status.textContent = `${state.year}년 ${state.month}월 근무를 자동 편성했습니다.${unassigned ? ` 미배정 ${unassigned}건이 있습니다.` : ""}`;
-    }
+    announce(`${state.year}년 ${state.month}월 근무를 자동 편성했습니다.${unassigned ? ` 미배정 ${unassigned}건이 있습니다.` : ""}`);
   });
 
   /* 근무 불가일 등록 모달: 표시 중인 달 기준, 저장 전까지는 draft에서만 변경 */

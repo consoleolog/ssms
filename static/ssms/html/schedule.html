@@ -46,6 +46,44 @@
 				</div>
 			</div>
 			<!-- //달력 툴바 -->
+
+			<!-- 공휴일 설정 -->
+			<div class="krds-disclosure conts-expand-area ssms-holiday">
+				<button type="button" class="btn-conts-expand">공휴일 설정</button>
+				<div class="expand-wrap">
+					<div class="expand-in">
+						<form id="holiday_form" novalidate>
+							<div class="fieldset">
+								<div class="form-col-group">
+									<div class="form-group">
+										<div class="form-tit">
+											<label for="holiday_date">날짜</label>
+										</div>
+										<div class="form-conts">
+											<input type="text" id="holiday_date" class="krds-input" placeholder="YYYY-MM-DD" inputmode="numeric" maxlength="10" autocomplete="off" aria-describedby="holiday_date_hint">
+										</div>
+										<p class="form-hint" id="holiday_date_hint">예: 2026-10-05</p>
+									</div>
+									<div class="form-group">
+										<div class="form-tit">
+											<label for="holiday_name">공휴일명</label>
+										</div>
+										<div class="form-conts">
+											<input type="text" id="holiday_name" class="krds-input" maxlength="20" autocomplete="off" aria-describedby="holiday_name_hint">
+										</div>
+										<p class="form-hint" id="holiday_name_hint">예: 임시공휴일 (20자 이내)</p>
+									</div>
+								</div>
+								<button type="submit" class="krds-btn medium secondary">공휴일 추가</button>
+							</div>
+						</form>
+						<h4 class="ssms-holiday__title" id="holiday_list_title"></h4>
+						<!-- 표시 중인 달의 공휴일 목록은 schedule.js에서 렌더링 -->
+						<ul class="ssms-holiday__list" id="holiday_list" aria-labelledby="holiday_list_title" tabindex="-1"></ul>
+					</div>
+				</div>
+			</div>
+			<!-- //공휴일 설정 -->
 			<p class="sr-only" id="schedule_status" aria-live="polite"></p>
 
 			<div class="ssms-schedule__body">

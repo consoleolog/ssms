@@ -144,3 +144,23 @@
   font-weight: var(--krds-font-weight-bold);
   color: var(--krds-light-color-text-bolder);
 }
+
+/* 공휴일 설정 (KRDS 디스클로저 내부) */
+.ssms-holiday {
+  margin-bottom: var(--krds-gap-5);
+}
+.ssms-holiday__title {
+  margin: var(--krds-gap-6) 0 var(--krds-gap-3);
+  font-size: var(--krds-pc-font-size-heading-xxsmall);
+}
+.ssms-holiday__list {
+  border-top: 1px solid var(--krds-light-color-divider-gray-light);
+}
+.ssms-holiday__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--krds-gap-3);
+  padding: var(--krds-padding-3) 0;
+  border-bottom: 1px solid var(--krds-light-color-divider-gray-light);
+}
