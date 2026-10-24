@@ -83,7 +83,7 @@
         rows += `<td class="ssms-calendar__cell${mods.map((m) => ` ssms-calendar__cell--${m}`).join("")}"${k === today ? ' aria-current="date"' : ""}><div class="ssms-calendar__head">`
           + (work ? `<button type="button" class="ssms-calendar__date" data-date="${k}" aria-label="${fmt(k)} 근무 수정">${d.getDate()}</button>` : `<span class="ssms-calendar__date">${d.getDate()}</span>`)
           + (k === today ? '<span class="krds-badge bg-primary">오늘</span>' : "") + (hol ? `<span class="ssms-calendar__holiday">${esc(hol)}</span>` : "") + "</div>"
-          + (!work ? "" : !duty ? "<p>-</p>" : slotsOf(k).map((s) => `<p class="ssms-calendar__item"><span class="krds-badge bg-light-${duty[s] ? COLOR[s] : "danger"}">${LABEL[s]}</span>${esc(duty[s] || "미배정")}</p>`).join(""))
+          + (!work ? "" : !duty ? "<p>-</p>" : slotsOf(k).map((s) => `<p class="ssms-calendar__item"><span class="krds-badge bg-light-${COLOR[s]}">${LABEL[s]}</span>${duty[s] ? esc(duty[s]) : '<span class="ssms-calendar__none">미배정</span>'}</p>`).join(""))
           + "</td>";
       }
       rows += "</tr>";
@@ -134,7 +134,6 @@
     const days = workdays(), res = assign(days);
     days.forEach((k, i) => (S.schedule[k] = res[i]));
     save(); render();
-    say(`${Y}년 ${M}월 근무를 자동 편성했습니다.`);
   };
   $("btn_auto").onclick = (e) => (workdays().some((k) => S.schedule[k])
     ? confirmModal("근무 자동 편성", `${Y}년 ${M}월에 이미 편성된 근무가 있습니다. 다시 편성하면 직접 수정한 근무를 포함해 모두 바뀌며 되돌릴 수 없습니다.`, "다시 편성", e.currentTarget, runAuto)

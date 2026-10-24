@@ -30,7 +30,7 @@
 .ssms-calendar .tbl.data .ssms-calendar__cell--edit:hover { background-color: var(--krds-light-color-surface-gray-subtler); }
 .ssms-calendar__head, .ssms-calendar__item { display: flex; align-items: center; gap: var(--krds-gap-2); margin-bottom: var(--krds-gap-1); }
 .ssms-calendar__date { font: inherit; font-weight: 700; color: var(--krds-light-color-text-bolder); }
-.ssms-calendar__cell--holiday .ssms-calendar__date, .ssms-calendar__holiday { color: var(--krds-light-color-text-danger); }
+.ssms-calendar__cell--holiday .ssms-calendar__date, .ssms-calendar__holiday, .ssms-calendar__none { color: var(--krds-light-color-text-danger); }
 .ssms-calendar__cell--saturday .ssms-calendar__date { color: var(--krds-light-color-text-information); }
 .ssms-calendar__cell--other .ssms-calendar__date { color: var(--krds-light-color-text-disabled); }
 .ssms-calendar__holiday { font-size: var(--krds-pc-font-size-label-xsmall); }
