@@ -40,7 +40,7 @@
 }
 .ssms-schedule__aside {
   flex-shrink: 0;
-  width: 32rem;
+  width: 24rem;
 }
 .ssms-schedule__aside-head {
   display: flex;
