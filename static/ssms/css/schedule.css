@@ -1,65 +1,247 @@
 @charset "UTF-8";
 /* KRDS가 선언하지 않은 글꼴과 KRDS로 표현할 수 없는 배치만 정의 */
-@font-face { font-family: "Pretendard GOV"; font-weight: 400; src: url("../../krds/resources/fonts/PretendardGOV-Regular.subset.woff2") format("woff2"); }
-@font-face { font-family: "Pretendard GOV"; font-weight: 500; src: url("../../krds/resources/fonts/PretendardGOV-Medium.subset.woff2") format("woff2"); }
-@font-face { font-family: "Pretendard GOV"; font-weight: 700; src: url("../../krds/resources/fonts/PretendardGOV-Bold.subset.woff2") format("woff2"); }
-[hidden] { display: none !important; }
+@font-face {
+  font-family: "Pretendard GOV";
+  font-weight: 400;
+  src: url("../../krds/resources/fonts/PretendardGOV-Regular.subset.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard GOV";
+  font-weight: 500;
+  src: url("../../krds/resources/fonts/PretendardGOV-Medium.subset.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard GOV";
+  font-weight: 700;
+  src: url("../../krds/resources/fonts/PretendardGOV-Bold.subset.woff2") format("woff2");
+}
+[hidden] {
+  display: none !important;
+}
 
-.ssms { padding-top: var(--krds-padding-8); padding-bottom: var(--krds-padding-8); }
-.ssms__header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--krds-gap-3); margin-bottom: var(--krds-gap-5); }
-.ssms__title { font-size: var(--krds-pc-font-size-heading-large); }
-.ssms__toolbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--krds-gap-3); }
-.ssms__nav, .ssms__actions, .ssms__buttons, .ssms__subtitle { display: flex; flex-wrap: wrap; align-items: center; gap: var(--krds-gap-2); }
-.ssms__actions, .ssms__buttons { justify-content: flex-end; align-self: stretch; } /* KRDS 입력폼: 버튼은 오른쪽 아래 */
-.ssms__status { min-height: 2.4rem; margin-top: var(--krds-gap-2); color: var(--krds-light-color-text-subtle); text-align: center; }
-.ssms__month { min-width: 18rem; font-size: var(--krds-pc-font-size-heading-large); text-align: center; }
-.ssms__subtitle { margin: var(--krds-gap-5) 0 var(--krds-gap-3); font-size: var(--krds-pc-font-size-heading-xsmall); }
-.ssms__panel { margin-top: var(--krds-gap-5); }
-.ssms__panel.active .expand-wrap { overflow: visible; } /* KRDS 달력 팝업이 잘리지 않도록 */
-.ssms__list { border-top: 1px solid var(--krds-light-color-divider-gray-light); }
-.ssms__list > * { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--krds-gap-2); padding: var(--krds-padding-3) 0; border-bottom: 1px solid var(--krds-light-color-divider-gray-light); }
-.ssms__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr)); column-gap: var(--krds-gap-8); align-self: stretch; border-top: 0; }
-.ssms__grid > * { flex-wrap: nowrap; border-top: 1px solid var(--krds-light-color-divider-gray-light); border-bottom: 0; }
-.ssms__body { display: flex; align-items: flex-start; gap: var(--krds-gap-5); margin-top: var(--krds-gap-5); }
-.ssms__aside { flex-shrink: 0; width: 24rem; }
+.ssms {
+  padding-top: var(--krds-padding-8);
+  padding-bottom: var(--krds-padding-8);
+}
+.ssms__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--krds-gap-3);
+  margin-bottom: var(--krds-gap-5);
+}
+.ssms__title {
+  font-size: var(--krds-pc-font-size-heading-large);
+}
+.ssms__toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--krds-gap-3);
+}
+.ssms__nav,
+.ssms__actions,
+.ssms__buttons,
+.ssms__subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--krds-gap-2);
+}
+.ssms__actions,
+.ssms__buttons {
+  justify-content: flex-end;
+  align-self: stretch;
+} /* KRDS 입력폼: 버튼은 오른쪽 아래 */
+.ssms__status {
+  min-height: 2.4rem;
+  margin-top: var(--krds-gap-2);
+  color: var(--krds-light-color-text-subtle);
+  text-align: center;
+}
+.ssms__month {
+  min-width: 18rem;
+  font-size: var(--krds-pc-font-size-heading-large);
+  text-align: center;
+}
+.ssms__subtitle {
+  margin: var(--krds-gap-5) 0 var(--krds-gap-3);
+  font-size: var(--krds-pc-font-size-heading-xsmall);
+}
+.ssms__panel {
+  margin-top: var(--krds-gap-5);
+}
+.ssms__panel.active .expand-wrap {
+  overflow: visible;
+} /* KRDS 달력 팝업이 잘리지 않도록 */
+.ssms__list {
+  border-top: 1px solid var(--krds-light-color-divider-gray-light);
+}
+.ssms__list > * {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--krds-gap-2);
+  padding: var(--krds-padding-3) 0;
+  border-bottom: 1px solid var(--krds-light-color-divider-gray-light);
+}
+.ssms__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr));
+  column-gap: var(--krds-gap-8);
+  align-self: stretch;
+  border-top: 0;
+}
+.ssms__grid > * {
+  flex-wrap: nowrap;
+  border-top: 1px solid var(--krds-light-color-divider-gray-light);
+  border-bottom: 0;
+}
+.ssms__body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--krds-gap-5);
+  margin-top: var(--krds-gap-5);
+}
+.ssms__aside {
+  flex-shrink: 0;
+  width: 24rem;
+}
 
-.ssms-calendar { flex: 1; min-width: 0; --krds-table--data-tbody-padding: var(--krds-padding-3); --krds-table--data-tbody-padding-sides: var(--krds-padding-3); }
-.ssms-calendar .tbl { min-width: 84rem; }
-.ssms-calendar .tbl.data .ssms-calendar__cell { height: 12rem; vertical-align: top; border-right: 1px solid var(--krds-light-color-divider-gray-light); }
-.ssms-calendar .tbl.data .ssms-calendar__cell--today { background-color: var(--krds-light-color-surface-primary-subtler); }
-.ssms-calendar .tbl.data .ssms-calendar__cell--edit { cursor: pointer; }
-.ssms-calendar .tbl.data .ssms-calendar__cell--edit:hover { background-color: var(--krds-light-color-surface-gray-subtler); }
-.ssms-calendar__head, .ssms-calendar__item { display: flex; align-items: center; gap: var(--krds-gap-2); margin-bottom: var(--krds-gap-1); }
-.ssms-calendar__date { font: inherit; font-weight: 700; color: var(--krds-light-color-text-bolder); }
-.ssms-calendar__cell--holiday .ssms-calendar__date, .ssms-calendar__holiday, .ssms-calendar__none { color: var(--krds-light-color-text-danger); }
-.ssms-calendar__cell--saturday .ssms-calendar__date { color: var(--krds-light-color-text-information); }
-.ssms-calendar__cell--other .ssms-calendar__date { color: var(--krds-light-color-text-disabled); }
-.ssms-calendar__holiday { font-size: var(--krds-pc-font-size-label-xsmall); }
-.ssms-members .tbl { min-width: 100%; }
+.ssms-calendar {
+  flex: 1;
+  min-width: 0;
+  --krds-table--data-tbody-padding: var(--krds-padding-3);
+  --krds-table--data-tbody-padding-sides: var(--krds-padding-3);
+}
+.ssms-calendar .tbl {
+  min-width: 84rem;
+}
+.ssms-calendar .tbl.data .ssms-calendar__cell {
+  height: 12rem;
+  vertical-align: top;
+  border-right: 1px solid var(--krds-light-color-divider-gray-light);
+}
+.ssms-calendar .tbl.data .ssms-calendar__cell--today {
+  background-color: var(--krds-light-color-surface-primary-subtler);
+}
+.ssms-calendar .tbl.data .ssms-calendar__cell--edit {
+  cursor: pointer;
+}
+.ssms-calendar .tbl.data .ssms-calendar__cell--edit:hover {
+  background-color: var(--krds-light-color-surface-gray-subtler);
+}
+.ssms-calendar__head,
+.ssms-calendar__item {
+  display: flex;
+  align-items: center;
+  gap: var(--krds-gap-2);
+  margin-bottom: var(--krds-gap-1);
+}
+.ssms-calendar__date {
+  font: inherit;
+  font-weight: 700;
+  color: var(--krds-light-color-text-bolder);
+}
+.ssms-calendar__cell--holiday .ssms-calendar__date,
+.ssms-calendar__holiday,
+.ssms-calendar__none {
+  color: var(--krds-light-color-text-danger);
+}
+.ssms-calendar__cell--saturday .ssms-calendar__date {
+  color: var(--krds-light-color-text-information);
+}
+.ssms-calendar__cell--other .ssms-calendar__date {
+  color: var(--krds-light-color-text-disabled);
+}
+.ssms-calendar__holiday {
+  font-size: var(--krds-pc-font-size-label-xsmall);
+}
+.ssms-members .tbl {
+  min-width: 100%;
+}
 
 @media (max-width: 1023px) {
-	.ssms__body { flex-direction: column; }
-	.ssms__aside { width: 100%; }
+  .ssms__body {
+    flex-direction: column;
+  }
+  .ssms__aside {
+    width: 100%;
+  }
 }
 @media (max-width: 767px) {
-	.ssms__toolbar { grid-template-columns: 1fr 1fr; }
-	.ssms__nav { order: -1; grid-column: 1 / -1; justify-content: center; }
-	.ssms__month { min-width: 0; font-size: var(--krds-mobile-font-size-heading-large); }
+  .ssms__toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+  .ssms__nav {
+    order: -1;
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+  .ssms__month {
+    min-width: 0;
+    font-size: var(--krds-mobile-font-size-heading-large);
+  }
 }
 /* 인쇄: 연월과 달력만 A4 세로 한 장에 크게 (근무 변경은 출력물에 직접 적는다) */
 @media print {
-	@page { size: A4 portrait; margin: 7mm; }
-	* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-	.ssms { padding: 0; }
-	.ssms__header, .ssms__toolbar > :not(.ssms__nav), .ssms__nav button, .ssms__status, .ssms__panel, .ssms__aside, .ssms-calendar__head .bg-primary { display: none !important; }
-	.ssms__toolbar { display: block; }
-	.ssms__nav { justify-content: center; }
-	.ssms__month { font-size: 22pt; }
-	.ssms__body { margin-top: 2mm; }
-	.ssms-calendar { width: 100% !important; --krds-table--data-tbody-padding: 1.5mm; --krds-table--data-tbody-padding-sides: 1.5mm; --krds-table--data-thead-th-padding-sides: 1.5mm; }
-	.ssms-calendar .tbl { min-width: 0; height: 265mm; } /* 표 높이를 고정하면 5주, 6주 모두 행이 나눠 채운다 */
-	.ssms-calendar .tbl.data th, .ssms-calendar .tbl.data .ssms-calendar__cell { height: auto; font-size: 13pt; }
-	.ssms-calendar .tbl.data .ssms-calendar__cell--today { background: none; } /* 한 달 동안 쓰는 출력물이라 오늘 표시는 뺀다 */
-	.ssms-calendar__item { flex-wrap: wrap; gap: 1mm; } /* 긴 이름은 칸을 넘지 않고 다음 줄로 */
-	.ssms-calendar__item .krds-badge { font-size: 10pt; }
+  @page {
+    size: A4 portrait;
+    margin: 7mm;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .ssms {
+    padding: 0;
+  }
+  .ssms__header,
+  .ssms__toolbar > :not(.ssms__nav),
+  .ssms__nav button,
+  .ssms__status,
+  .ssms__panel,
+  .ssms__aside,
+  .ssms-calendar__head .bg-primary {
+    display: none !important;
+  }
+  .ssms__toolbar {
+    display: block;
+  }
+  .ssms__nav {
+    justify-content: center;
+  }
+  .ssms__month {
+    font-size: 22pt;
+  }
+  .ssms__body {
+    margin-top: 2mm;
+  }
+  .ssms-calendar {
+    width: 100% !important;
+    --krds-table--data-tbody-padding: 1.5mm;
+    --krds-table--data-tbody-padding-sides: 1.5mm;
+    --krds-table--data-thead-th-padding-sides: 1.5mm;
+  }
+  .ssms-calendar .tbl {
+    min-width: 0;
+    height: 265mm;
+  } /* 표 높이를 고정하면 5주, 6주 모두 행이 나눠 채운다 */
+  .ssms-calendar .tbl.data th,
+  .ssms-calendar .tbl.data .ssms-calendar__cell {
+    height: auto;
+    font-size: 13pt;
+  }
+  .ssms-calendar .tbl.data .ssms-calendar__cell--today {
+    background: none;
+  } /* 한 달 동안 쓰는 출력물이라 오늘 표시는 뺀다 */
+  .ssms-calendar__item {
+    flex-wrap: wrap;
+    gap: 1mm;
+  } /* 긴 이름은 칸을 넘지 않고 다음 줄로 */
+  .ssms-calendar__item .krds-badge {
+    font-size: 10pt;
+  }
 }

@@ -1,154 +1,272 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>전산근무표 | SSMS</title>
-<link rel="stylesheet" href="../../krds/resources/css/component/output.css">
-<link rel="stylesheet" href="../css/schedule.css">
-</head>
-<body>
-<div id="wrap">
-<main id="container" class="inner ssms">
-<div class="ssms__header">
-	<h2 class="ssms__title">전산근무표</h2>
-	<div class="ssms__actions">
-		<button type="button" class="krds-btn medium tertiary" id="btn_print"><i class="svg-icon ico-print"></i>인쇄</button>
-		<button type="button" class="krds-btn medium secondary" id="btn_auto"><i class="svg-icon ico-refresh"></i>자동 편성</button>
-	</div>
-</div>
-<div class="ssms__toolbar">
-	<div><button type="button" class="krds-btn small tertiary" id="btn_today">오늘</button></div>
-	<div class="ssms__nav">
-		<button type="button" class="krds-btn medium icon border" id="btn_prev"><span class="sr-only">이전 달</span><i class="svg-icon ico-angle left"></i></button>
-		<h3 class="ssms__month" id="month"></h3>
-		<button type="button" class="krds-btn medium icon border" id="btn_next"><span class="sr-only">다음 달</span><i class="svg-icon ico-angle right"></i></button>
-	</div>
-	<div class="ssms__actions" aria-label="근무 범례">
-		<span class="krds-badge bg-light-primary">오전</span>
-		<span class="krds-badge bg-light-point">오후</span>
-		<span class="krds-badge bg-light-success">종일</span>
-	</div>
-</div>
-<p class="ssms__status" id="status" aria-live="polite"></p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>전산근무표 | SSMS</title>
+    <link rel="stylesheet" href="../../krds/resources/css/component/output.css" />
+    <link rel="stylesheet" href="../css/schedule.css" />
+  </head>
+  <body>
+    <div id="wrap">
+      <main id="container" class="inner ssms">
+        <div class="ssms__header">
+          <h2 class="ssms__title">전산근무표</h2>
+          <div class="ssms__actions">
+            <button type="button" class="krds-btn medium tertiary" id="btn_print">
+              <i class="svg-icon ico-print"></i>
+              인쇄
+            </button>
+            <button type="button" class="krds-btn medium secondary" id="btn_auto">
+              <i class="svg-icon ico-refresh"></i>
+              자동 편성
+            </button>
+          </div>
+        </div>
+        <div class="ssms__toolbar">
+          <div>
+            <button type="button" class="krds-btn small tertiary" id="btn_today">오늘</button>
+          </div>
+          <div class="ssms__nav">
+            <button type="button" class="krds-btn medium icon border" id="btn_prev">
+              <span class="sr-only">이전 달</span>
+              <i class="svg-icon ico-angle left"></i>
+            </button>
+            <h3 class="ssms__month" id="month"></h3>
+            <button type="button" class="krds-btn medium icon border" id="btn_next">
+              <span class="sr-only">다음 달</span>
+              <i class="svg-icon ico-angle right"></i>
+            </button>
+          </div>
+          <div class="ssms__actions" aria-label="근무 범례">
+            <span class="krds-badge bg-light-primary">오전</span>
+            <span class="krds-badge bg-light-point">오후</span>
+            <span class="krds-badge bg-light-success">종일</span>
+          </div>
+        </div>
+        <p class="ssms__status" id="status" aria-live="polite"></p>
 
-<div class="krds-disclosure conts-expand-area ssms__panel">
-	<button type="button" class="btn-conts-expand">투입 인원 수정</button>
-	<div class="expand-wrap"><div class="expand-in">
-		<form id="member_form" class="fieldset" novalidate>
-			<div class="form-col-group"><div class="form-group">
-				<div class="form-tit"><label for="member_name">이름 (필수)</label></div>
-				<div class="form-conts"><div class="input-group">
-					<input type="text" id="member_name" class="krds-input" maxlength="20" autocomplete="off" aria-required="true" aria-describedby="member_name_hint">
-					<button type="submit" class="krds-btn medium secondary" id="member_submit">추가</button>
-				</div></div>
-				<p class="form-hint" id="member_name_hint">20자 이내로 입력해 주세요.</p>
-			</div></div>
-			<div class="ssms__buttons" hidden><button type="button" class="krds-btn small text" id="member_cancel">변경 취소</button></div>
-		</form>
-		<ul class="ssms__list ssms__grid" id="member_list" tabindex="-1"></ul>
-	</div></div>
-</div>
+        <div class="krds-disclosure conts-expand-area ssms__panel">
+          <button type="button" class="btn-conts-expand">투입 인원 수정</button>
+          <div class="expand-wrap">
+            <div class="expand-in">
+              <form id="member_form" class="fieldset" novalidate>
+                <div class="form-col-group">
+                  <div class="form-group">
+                    <div class="form-tit"><label for="member_name">이름 (필수)</label></div>
+                    <div class="form-conts">
+                      <div class="input-group">
+                        <input
+                          type="text"
+                          id="member_name"
+                          class="krds-input"
+                          maxlength="20"
+                          autocomplete="off"
+                          aria-required="true"
+                          aria-describedby="member_name_hint"
+                        />
+                        <button type="submit" class="krds-btn medium secondary" id="member_submit">
+                          추가
+                        </button>
+                      </div>
+                    </div>
+                    <p class="form-hint" id="member_name_hint">20자 이내로 입력해 주세요.</p>
+                  </div>
+                </div>
+                <div class="ssms__buttons" hidden>
+                  <button type="button" class="krds-btn small text" id="member_cancel">
+                    변경 취소
+                  </button>
+                </div>
+              </form>
+              <ul class="ssms__list ssms__grid" id="member_list" tabindex="-1"></ul>
+            </div>
+          </div>
+        </div>
 
-<div class="krds-disclosure conts-expand-area ssms__panel">
-	<button type="button" class="btn-conts-expand">공휴일 설정</button>
-	<div class="expand-wrap"><div class="expand-in">
-		<form id="holiday_form" class="fieldset" novalidate>
-			<p class="form-hint">모든 항목은 필수 입력입니다.</p>
-			<div class="form-col-group">
-				<div class="form-group">
-					<div class="form-tit"><label for="holiday_date">날짜</label></div>
-					<div class="form-conts calendar-conts" id="holiday_conts">
-						<div class="calendar-input">
-							<input type="text" id="holiday_date" class="krds-input" placeholder="YYYY-MM-DD" maxlength="10" autocomplete="off" aria-required="true" aria-describedby="holiday_date_hint">
-							<button type="button" class="krds-btn medium icon" id="holiday_cal" aria-expanded="false"><span class="sr-only">달력 열기</span><i class="svg-icon ico-calendar"></i></button>
-						</div>
-					</div>
-					<p class="form-hint" id="holiday_date_hint">예: 2026-10-05</p>
-				</div>
-				<div class="form-group">
-					<div class="form-tit"><label for="holiday_name">공휴일명</label></div>
-					<div class="form-conts"><input type="text" id="holiday_name" class="krds-input" maxlength="20" autocomplete="off" aria-required="true" aria-describedby="holiday_name_hint"></div>
-					<p class="form-hint" id="holiday_name_hint">예: 임시공휴일 (20자 이내)</p>
-				</div>
-			</div>
-			<div class="ssms__buttons"><button type="submit" class="krds-btn medium secondary">공휴일 추가</button></div>
-		</form>
-		<h4 class="ssms__subtitle" id="holiday_title"></h4>
-		<ul class="ssms__list ssms__grid" id="holiday_list" tabindex="-1"></ul>
-	</div></div>
-</div>
+        <div class="krds-disclosure conts-expand-area ssms__panel">
+          <button type="button" class="btn-conts-expand">공휴일 설정</button>
+          <div class="expand-wrap">
+            <div class="expand-in">
+              <form id="holiday_form" class="fieldset" novalidate>
+                <p class="form-hint">모든 항목은 필수 입력입니다.</p>
+                <div class="form-col-group">
+                  <div class="form-group">
+                    <div class="form-tit"><label for="holiday_date">날짜</label></div>
+                    <div class="form-conts calendar-conts" id="holiday_conts">
+                      <div class="calendar-input">
+                        <input
+                          type="text"
+                          id="holiday_date"
+                          class="krds-input"
+                          placeholder="YYYY-MM-DD"
+                          maxlength="10"
+                          autocomplete="off"
+                          aria-required="true"
+                          aria-describedby="holiday_date_hint"
+                        />
+                        <button
+                          type="button"
+                          class="krds-btn medium icon"
+                          id="holiday_cal"
+                          aria-expanded="false"
+                        >
+                          <span class="sr-only">달력 열기</span>
+                          <i class="svg-icon ico-calendar"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <p class="form-hint" id="holiday_date_hint">예: 2026-10-05</p>
+                  </div>
+                  <div class="form-group">
+                    <div class="form-tit"><label for="holiday_name">공휴일명</label></div>
+                    <div class="form-conts">
+                      <input
+                        type="text"
+                        id="holiday_name"
+                        class="krds-input"
+                        maxlength="20"
+                        autocomplete="off"
+                        aria-required="true"
+                        aria-describedby="holiday_name_hint"
+                      />
+                    </div>
+                    <p class="form-hint" id="holiday_name_hint">예: 임시공휴일 (20자 이내)</p>
+                  </div>
+                </div>
+                <div class="ssms__buttons">
+                  <button type="submit" class="krds-btn medium secondary">공휴일 추가</button>
+                </div>
+              </form>
+              <h4 class="ssms__subtitle" id="holiday_title"></h4>
+              <ul class="ssms__list ssms__grid" id="holiday_list" tabindex="-1"></ul>
+            </div>
+          </div>
+        </div>
 
-<div class="krds-disclosure conts-expand-area ssms__panel">
-	<button type="button" class="btn-conts-expand">근무 불가일 등록</button>
-	<div class="expand-wrap"><div class="expand-in">
-		<form id="unavail_form" class="fieldset" novalidate>
-			<div class="form-col-group"><div class="form-group">
-				<div class="form-tit"><label for="unavail_member">투입 인원</label></div>
-				<div class="form-conts"><select id="unavail_member" class="krds-form-select"></select></div>
-			</div></div>
-			<fieldset class="fieldset">
-				<legend id="unavail_legend"></legend>
-				<p class="form-hint">근무할 수 없는 시간을 선택해 주세요. 금요일은 종일 한 명이 근무합니다.</p>
-				<div class="ssms__list ssms__grid" id="unavail_list"></div>
-			</fieldset>
-			<div class="ssms__buttons">
-				<button type="button" class="krds-btn medium tertiary" id="unavail_cancel">취소</button>
-				<button type="submit" class="krds-btn medium primary">저장</button>
-			</div>
-		</form>
-	</div></div>
-</div>
+        <div class="krds-disclosure conts-expand-area ssms__panel">
+          <button type="button" class="btn-conts-expand">근무 불가일 등록</button>
+          <div class="expand-wrap">
+            <div class="expand-in">
+              <form id="unavail_form" class="fieldset" novalidate>
+                <div class="form-col-group">
+                  <div class="form-group">
+                    <div class="form-tit"><label for="unavail_member">투입 인원</label></div>
+                    <div class="form-conts">
+                      <select id="unavail_member" class="krds-form-select"></select>
+                    </div>
+                  </div>
+                </div>
+                <fieldset class="fieldset">
+                  <legend id="unavail_legend"></legend>
+                  <p class="form-hint">
+                    근무할 수 없는 시간을 선택해 주세요. 금요일은 종일 한 명이 근무합니다.
+                  </p>
+                  <div class="ssms__list ssms__grid" id="unavail_list"></div>
+                </fieldset>
+                <div class="ssms__buttons">
+                  <button type="button" class="krds-btn medium tertiary" id="unavail_cancel">
+                    취소
+                  </button>
+                  <button type="submit" class="krds-btn medium primary">저장</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
 
-<div class="ssms__body">
-	<div class="krds-table-wrap scroll ssms-calendar">
-		<table class="tbl data">
-			<caption class="sr-only" id="cal_caption"></caption>
-			<thead><tr><th scope="col">일</th><th scope="col">월</th><th scope="col">화</th><th scope="col">수</th><th scope="col">목</th><th scope="col">금</th><th scope="col">토</th></tr></thead>
-			<tbody id="cal_body"></tbody>
-		</table>
-	</div>
-	<aside class="ssms__aside">
-		<h3 class="ssms__subtitle">투입 인원 <span class="krds-badge bg-light-gray" id="member_count"></span></h3>
-		<div class="krds-table-wrap ssms-members">
-			<table class="tbl data">
-				<caption class="sr-only">이번 달 인원별 근무 횟수</caption>
-				<thead><tr><th scope="col">이름</th><th scope="col">오전</th><th scope="col">오후</th><th scope="col">종일</th></tr></thead>
-				<tbody id="member_body"></tbody>
-			</table>
-		</div>
-	</aside>
-</div>
-</main>
-</div>
+        <div class="ssms__body">
+          <div class="krds-table-wrap scroll ssms-calendar">
+            <table class="tbl data">
+              <caption class="sr-only" id="cal_caption"></caption>
+              <thead>
+                <tr>
+                  <th scope="col">일</th>
+                  <th scope="col">월</th>
+                  <th scope="col">화</th>
+                  <th scope="col">수</th>
+                  <th scope="col">목</th>
+                  <th scope="col">금</th>
+                  <th scope="col">토</th>
+                </tr>
+              </thead>
+              <tbody id="cal_body"></tbody>
+            </table>
+          </div>
+          <aside class="ssms__aside">
+            <h3 class="ssms__subtitle">
+              투입 인원
+              <span class="krds-badge bg-light-gray" id="member_count"></span>
+            </h3>
+            <div class="krds-table-wrap ssms-members">
+              <table class="tbl data">
+                <caption class="sr-only">이번 달 인원별 근무 횟수</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">이름</th>
+                    <th scope="col">오전</th>
+                    <th scope="col">오후</th>
+                    <th scope="col">종일</th>
+                  </tr>
+                </thead>
+                <tbody id="member_body"></tbody>
+              </table>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
 
-<section id="modal_duty" class="krds-modal fade" role="dialog" aria-labelledby="duty_title">
-	<div class="modal-dialog modal-sm"><div class="modal-content">
-		<div class="modal-header"><h2 id="duty_title" class="modal-title"></h2></div>
-		<div class="modal-conts"><div class="conts-area fieldset" id="duty_slots"></div></div>
-		<div class="modal-btn btn-wrap">
-			<button type="button" class="krds-btn medium tertiary close-modal">취소</button>
-			<button type="button" class="krds-btn medium primary close-modal" id="duty_save">저장</button>
-		</div>
-		<button type="button" class="krds-btn medium icon btn-close close-modal"><span class="sr-only">닫기</span><i class="svg-icon ico-popup-close"></i></button>
-	</div></div>
-	<div class="modal-back"></div>
-</section>
+    <section id="modal_duty" class="krds-modal fade" role="dialog" aria-labelledby="duty_title">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header"><h2 id="duty_title" class="modal-title"></h2></div>
+          <div class="modal-conts"><div class="conts-area fieldset" id="duty_slots"></div></div>
+          <div class="modal-btn btn-wrap">
+            <button type="button" class="krds-btn medium tertiary close-modal">취소</button>
+            <button type="button" class="krds-btn medium primary close-modal" id="duty_save">
+              저장
+            </button>
+          </div>
+          <button type="button" class="krds-btn medium icon btn-close close-modal">
+            <span class="sr-only">닫기</span>
+            <i class="svg-icon ico-popup-close"></i>
+          </button>
+        </div>
+      </div>
+      <div class="modal-back"></div>
+    </section>
 
-<section id="modal_confirm" class="krds-modal fade" role="dialog" aria-labelledby="confirm_title">
-	<div class="modal-dialog modal-sm"><div class="modal-content">
-		<div class="modal-header"><h2 id="confirm_title" class="modal-title"></h2></div>
-		<div class="modal-conts"><div class="conts-area"><p id="confirm_msg"></p></div></div>
-		<div class="modal-btn btn-wrap">
-			<button type="button" class="krds-btn medium tertiary close-modal">취소</button>
-			<button type="button" class="krds-btn medium primary close-modal" id="confirm_ok"></button>
-		</div>
-		<button type="button" class="krds-btn medium icon btn-close close-modal"><span class="sr-only">닫기</span><i class="svg-icon ico-popup-close"></i></button>
-	</div></div>
-	<div class="modal-back"></div>
-</section>
+    <section
+      id="modal_confirm"
+      class="krds-modal fade"
+      role="dialog"
+      aria-labelledby="confirm_title"
+    >
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header"><h2 id="confirm_title" class="modal-title"></h2></div>
+          <div class="modal-conts">
+            <div class="conts-area"><p id="confirm_msg"></p></div>
+          </div>
+          <div class="modal-btn btn-wrap">
+            <button type="button" class="krds-btn medium tertiary close-modal">취소</button>
+            <button
+              type="button"
+              class="krds-btn medium primary close-modal"
+              id="confirm_ok"
+            ></button>
+          </div>
+          <button type="button" class="krds-btn medium icon btn-close close-modal">
+            <span class="sr-only">닫기</span>
+            <i class="svg-icon ico-popup-close"></i>
+          </button>
+        </div>
+      </div>
+      <div class="modal-back"></div>
+    </section>
 
-<script src="../../krds/resources/js/component/ui-script.js"></script>
-<script src="../js/schedule.js"></script>
-</body>
+    <script src="../../krds/resources/js/component/ui-script.js"></script>
+    <script src="../js/schedule.js"></script>
+  </body>
 </html>
