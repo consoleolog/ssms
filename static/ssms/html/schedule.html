@@ -38,11 +38,6 @@
               <i class="svg-icon ico-angle right"></i>
             </button>
           </div>
-          <div class="ssms__actions" aria-label="근무 범례">
-            <span class="krds-badge bg-light-primary">오전</span>
-            <span class="krds-badge bg-light-point">오후</span>
-            <span class="krds-badge bg-light-success">종일</span>
-          </div>
         </div>
         <p class="ssms__status" id="status" aria-live="polite"></p>
 
@@ -159,9 +154,7 @@
                 </div>
                 <fieldset class="fieldset">
                   <legend id="unavail_legend"></legend>
-                  <p class="form-hint">
-                    근무할 수 없는 시간을 선택해 주세요. 금요일은 종일 한 명이 근무합니다.
-                  </p>
+                  <p class="form-hint">근무할 수 없는 날을 선택해 주세요.</p>
                   <div class="ssms__list ssms__grid" id="unavail_list"></div>
                 </fieldset>
                 <div class="ssms__buttons">
@@ -204,9 +197,7 @@
                 <thead>
                   <tr>
                     <th scope="col">이름</th>
-                    <th scope="col">오전</th>
-                    <th scope="col">오후</th>
-                    <th scope="col">종일</th>
+                    <th scope="col">근무 횟수</th>
                   </tr>
                 </thead>
                 <tbody id="member_body"></tbody>
@@ -221,7 +212,21 @@
       <div class="modal-dialog modal-sm">
         <div class="modal-content">
           <div class="modal-header"><h2 id="duty_title" class="modal-title"></h2></div>
-          <div class="modal-conts"><div class="conts-area fieldset" id="duty_slots"></div></div>
+          <div class="modal-conts">
+            <div class="conts-area">
+              <div class="form-group">
+                <div class="form-tit"><label for="duty_member">근무자 (종일)</label></div>
+                <div class="form-conts">
+                  <select
+                    id="duty_member"
+                    class="krds-form-select"
+                    aria-describedby="duty_member_hint"
+                  ></select>
+                </div>
+                <p id="duty_member_hint"></p>
+              </div>
+            </div>
+          </div>
           <div class="modal-btn btn-wrap">
             <button type="button" class="krds-btn medium tertiary close-modal">취소</button>
             <button type="button" class="krds-btn medium primary close-modal" id="duty_save">

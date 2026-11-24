@@ -7,9 +7,6 @@
   const toDate = (k) => new Date(k.slice(0, 4), k.slice(5, 7) - 1, k.slice(8, 10));
   const WD = "일월화수목금토";
   const fmt = (k) => `${+k.slice(5, 7)}월 ${+k.slice(8, 10)}일 (${WD[toDate(k).getDay()]})`;
-  const LABEL = { AM: "오전", PM: "오후", DAY: "종일" };
-  const COLOR = { AM: "primary", PM: "point", DAY: "success" };
-  const slotsOf = (k) => (toDate(k).getDay() === 5 ? ["DAY"] : ["AM", "PM"]); // 금요일은 종일 한 명
   const say = (msg) => ($("status").textContent = msg);
   const clone = (o) => JSON.parse(JSON.stringify(o));
 
@@ -20,12 +17,20 @@
     // 손상된 데이터는 무시하고 새로 시작한다
   }
   S = { members: [], holidays: {}, unavailable: {}, schedule: {}, ...S };
+  // 모든 근무일은 한 명이 종일 근무한다: schedule { 날짜: 이름 }, unavailable { 이름: [날짜] }
+  // 예전에 오전/오후로 저장한 데이터는 한 명(종일)과 날짜로 바꾼다
+  Object.entries(S.schedule).forEach(([k, v]) => {
+    if (v && typeof v === "object") S.schedule[k] = v.DAY || v.AM || v.PM || null;
+  });
+  Object.entries(S.unavailable).forEach(([n, list]) => {
+    S.unavailable[n] = [...new Set(list.map((v) => v.slice(0, 10)))];
+  });
   const save = () => localStorage.setItem("ssms", JSON.stringify(S));
   let Y = new Date().getFullYear();
   let M = new Date().getMonth() + 1;
   let draft = clone(S.unavailable); // 불가일 등록에서 저장 전 변경 내용
 
-  const isOff = (n, k, s) => (S.unavailable[n] || []).includes(`${k}_${s}`);
+  const isOff = (n, k) => (S.unavailable[n] || []).includes(k);
   const workdays = () => {
     const days = [];
     for (const d = new Date(Y, M - 1, 1); d.getMonth() === M - 1; d.setDate(d.getDate() + 1)) {
@@ -33,62 +38,49 @@
     }
     return days;
   };
-  const newCount = () =>
-    Object.fromEntries(S.members.map((n) => [n, { all: 0, AM: 0, PM: 0, DAY: 0 }]));
+  const newCount = () => Object.fromEntries(S.members.map((n) => [n, 0]));
 
   /* 자동 편성: 무작위 편성을 300번 해서 가장 공평한 결과를 고른다
-     - 불가 시간은 제외하고, 하루에 한 사람은 한 칸만 맡는다
-     - 후보가 적은 칸부터 채우고, 근무 수 → 같은 칸 근무 수 → 앞뒤 날 근무가 적은 사람을 고른다
-     - 평가: 미배정 > 총 근무 편차 > 종일 편차 > 오전/오후 쏠림 */
+     - 불가일로 등록한 사람은 그날 제외한다
+     - 후보가 적은 날부터 채우고, 근무 수 → 앞뒤 근무일 근무가 적은 사람을 고른다
+     - 평가: 미배정 > 근무 수 편차 > 연속 근무 */
   const assign = (days) => {
     let best;
     let bestScore = Infinity;
     for (let t = 0; t < 300; t++) {
-      const res = days.map(() => ({}));
+      const res = days.map(() => null);
       const c = newCount();
-      const works = (i, n) => !!res[i] && Object.values(res[i]).includes(n);
-      const slots = days.flatMap((k, i) =>
-        slotsOf(k).map((s) => ({
-          i,
-          s,
-          pool: S.members.filter((n) => !isOff(n, k, s)),
-          r: Math.random(),
-        })),
-      );
-      slots
+      const order = days.map((k, i) => ({
+        i,
+        pool: S.members.filter((n) => !isOff(n, k)),
+        r: Math.random(),
+      }));
+      order
         .sort((a, b) => a.pool.length - b.pool.length || a.r - b.r)
-        .forEach(({ i, s, pool }) => {
-          const cost = (n) =>
-            c[n].all * 100 + c[n][s] * 10 + works(i - 1, n) + works(i + 1, n) + Math.random();
-          const n = pool
-            .filter((n) => !works(i, n))
-            .map((n) => [cost(n), n])
-            .sort((a, b) => a[0] - b[0])[0]?.[1];
+        .forEach(({ i, pool }) => {
+          const cost = (n) => c[n] * 10 + (res[i - 1] === n) + (res[i + 1] === n) + Math.random();
+          const n = pool.map((n) => [cost(n), n]).sort((a, b) => a[0] - b[0])[0]?.[1];
           if (n) {
-            res[i][s] = n;
-            c[n].all++;
-            c[n][s]++;
+            res[i] = n;
+            c[n]++;
           }
         });
-      const gap = (f) => {
-        const values = S.members.map((n) => c[n][f]);
-        return Math.max(...values) - Math.min(...values);
-      };
-      const empty = days.reduce((a, k, i) => a + slotsOf(k).filter((s) => !res[i][s]).length, 0);
-      const halfGap = S.members.reduce((a, n) => a + Math.abs(c[n].AM - c[n].PM), 0);
-      const score = empty * 1e6 + gap("all") * 1e4 + gap("DAY") * 1e3 + halfGap * 100;
+      const counts = Object.values(c);
+      const empty = res.filter((n) => !n).length;
+      const streak = res.filter((n, i) => n && n === res[i - 1]).length;
+      const score = empty * 1e6 + (Math.max(...counts) - Math.min(...counts)) * 1e3 + streak;
       if (score < bestScore) [best, bestScore] = [res, score];
     }
     return best;
   };
 
   /* 화면 */
-  // 근무 한 줄: 오전/오후/종일 뱃지 + 근무자
-  const dutyItem = (s, name) => {
+  // 근무 한 줄: 종일 뱃지 + 근무자
+  const dutyItem = (name) => {
     const who = name ? esc(name) : '<span class="ssms-calendar__none">미배정</span>';
     return `
       <p class="ssms-calendar__item">
-        <span class="krds-badge bg-light-${COLOR[s]}">${LABEL[s]}</span>
+        <span class="krds-badge bg-light-success">종일</span>
         ${who}
       </p>`;
   };
@@ -101,7 +93,6 @@
     const other = d.getMonth() !== M - 1;
     const work = !other && w % 6 && !hol; // 근무일: 이번 달의 평일이고 공휴일이 아닌 날
     const isToday = k === today;
-    const duty = S.schedule[k];
 
     const mods = [
       other && "other",
@@ -124,13 +115,7 @@
     const holidayName = hol ? `<span class="ssms-calendar__holiday">${esc(hol)}</span>` : "";
 
     let items = "";
-    if (work && duty) {
-      items = slotsOf(k)
-        .map((s) => dutyItem(s, duty[s]))
-        .join("");
-    } else if (work) {
-      items = "<p>-</p>"; // 아직 편성 전
-    }
+    if (work) items = k in S.schedule ? dutyItem(S.schedule[k]) : "<p>-</p>"; // -: 아직 편성 전
 
     return `
       <td class="${cls}" ${current}>
@@ -143,26 +128,15 @@
       </td>`;
   };
 
-  // 근무 불가일: 날짜 한 줄 + 오전/오후(금요일은 종일) 체크박스 칩
-  const unavailChip = (k, s, picked) => {
-    const id = `u_${k}_${s}`;
-    const value = `${k}_${s}`;
-    const checked = picked.includes(value) ? "checked" : "";
-    return `
-      <span class="krds-form-chip small">
-        <input type="checkbox" class="checkbox" id="${id}" value="${value}" ${checked}>
-        <label class="krds-form-chip-outline" for="${id}">${LABEL[s]}</label>
-      </span>`;
-  };
+  // 근무 불가일: 날짜 한 줄 + 종일 체크박스 칩
   const unavailRow = (k, picked) => {
-    const chips = slotsOf(k)
-      .map((s) => unavailChip(k, s, picked))
-      .join("");
+    const checked = picked.includes(k) ? "checked" : "";
     return `
       <div role="group" aria-label="${fmt(k)}">
         ${fmt(k)}
-        <span class="krds-check-area">
-          ${chips}
+        <span class="krds-form-chip small">
+          <input type="checkbox" class="checkbox" id="u_${k}" value="${k}" ${checked}>
+          <label class="krds-form-chip-outline" for="u_${k}">종일</label>
         </span>
       </div>`;
   };
@@ -171,9 +145,7 @@
   const memberRow = (n, count) => `
     <tr>
       <th scope="row">${esc(n)}</th>
-      <td>${count.AM}</td>
-      <td>${count.PM}</td>
-      <td>${count.DAY}</td>
+      <td>${count}</td>
     </tr>`;
 
   // 투입 인원 수정 목록의 한 줄
@@ -205,7 +177,7 @@
   const renderUnavail = () => {
     const n = $("unavail_member").value;
     const picked = draft[n] || [];
-    $("unavail_legend").textContent = `${Y}년 ${M}월 ${n} 근무 불가 시간`;
+    $("unavail_legend").textContent = `${Y}년 ${M}월 ${n} 근무 불가일`;
     $("unavail_list").innerHTML = n
       ? workdays()
           .map((k) => unavailRow(k, picked))
@@ -217,15 +189,9 @@
     const title = `${Y}년 ${M}월`;
     const today = toKey(new Date());
     const c = newCount();
-    workdays().forEach((k) =>
-      slotsOf(k).forEach((s) => {
-        const n = (S.schedule[k] || {})[s];
-        if (c[n]) {
-          c[n].all++;
-          c[n][s]++;
-        }
-      }),
-    );
+    workdays().forEach((k) => {
+      if (S.members.includes(S.schedule[k])) c[S.schedule[k]]++;
+    });
     $("month").textContent = title;
     $("cal_caption").textContent = `${title} 전산근무표`;
 
@@ -243,7 +209,7 @@
 
     const memberRows = S.members.map((n) => memberRow(n, c[n])).join("");
     $("member_count").textContent = `${S.members.length}명`;
-    $("member_body").innerHTML = memberRows || '<tr><td colspan="4">-</td></tr>';
+    $("member_body").innerHTML = memberRows || '<tr><td colspan="2">-</td></tr>';
     $("member_list").innerHTML = S.members.map((n) => memberItem(n)).join("");
 
     const holidays = Object.keys(S.holidays)
@@ -313,59 +279,35 @@
     );
   };
 
-  /* 근무 수정: 근무일 칸을 누르면 모달로 수정 (불가 시간, 같은 사람 중복은 막지 않고 안내만 한다) */
+  /* 근무 수정: 근무일 칸을 누르면 모달로 수정 (불가일이어도 막지 않고 안내만 한다) */
   let editing;
-  const dutyNotes = () => {
-    const sels = [...$("duty_slots").querySelectorAll("select")];
-    sels.forEach((sel) => {
-      const n = sel.value;
-      const p = $(`${sel.id}_hint`);
-      const twice = sels.filter((x) => x.value === n).length > 1;
-      const notes = [];
-      if (n && isOff(n, editing, sel.dataset.slot)) notes.push(`${n}의 근무 불가 시간입니다.`);
-      if (n && twice) notes.push("같은 사람이 오전과 오후를 모두 맡습니다.");
-      p.textContent = notes.join(" ");
-      p.className = p.textContent ? "form-hint-information" : "";
-      sel.parentNode.classList.toggle("is-information", !!p.textContent);
-    });
+  const dutyNote = () => {
+    const sel = $("duty_member");
+    const n = sel.value;
+    const p = $("duty_member_hint");
+    p.textContent = n && isOff(n, editing) ? `${n}의 근무 불가일입니다.` : "";
+    p.className = p.textContent ? "form-hint-information" : "";
+    sel.parentNode.classList.toggle("is-information", !!p.textContent);
   };
-  // 근무 수정 모달의 선택 칸 하나 (오전, 오후 또는 종일)
   const dutyOption = (n, current) => {
     const selected = n === current ? "selected" : "";
     return `<option ${selected}>${esc(n)}</option>`;
-  };
-  const dutySlot = (s, duty) => {
-    const id = `duty_${s}`;
-    const names = [...new Set([...S.members, duty[s]].filter(Boolean))]; // 삭제된 인원도 남겨 둔다
-    const options = names.map((n) => dutyOption(n, duty[s])).join("");
-    return `
-      <div class="form-group">
-        <div class="form-tit"><label for="${id}">${LABEL[s]}</label></div>
-        <div class="form-conts">
-          <select id="${id}" class="krds-form-select" data-slot="${s}" aria-describedby="${id}_hint">
-            <option value="">미배정</option>
-            ${options}
-          </select>
-        </div>
-        <p id="${id}_hint"></p>
-      </div>`;
   };
   $("cal_body").onclick = (e) => {
     const b = e.target.closest(".ssms-calendar__cell--edit")?.querySelector("[data-date]");
     if (!b) return;
     editing = b.dataset.date;
-    const duty = S.schedule[editing] || {};
+    const current = S.schedule[editing];
+    const names = [...new Set([...S.members, current].filter(Boolean))]; // 삭제된 인원도 남겨 둔다
+    const options = names.map((n) => dutyOption(n, current)).join("");
     $("duty_title").textContent = `${fmt(editing)} 근무 수정`;
-    $("duty_slots").innerHTML = slotsOf(editing)
-      .map((s) => dutySlot(s, duty))
-      .join("");
-    dutyNotes();
+    $("duty_member").innerHTML = `<option value="">미배정</option>${options}`;
+    dutyNote();
     openModal("modal_duty", b);
   };
-  $("duty_slots").onchange = dutyNotes;
+  $("duty_member").onchange = dutyNote;
   $("duty_save").onclick = () => {
-    const sels = [...$("duty_slots").querySelectorAll("select")];
-    S.schedule[editing] = Object.fromEntries(sels.map((s) => [s.dataset.slot, s.value || null]));
+    S.schedule[editing] = $("duty_member").value || null;
     save();
     render();
     say(`${fmt(editing)} 근무를 수정했습니다.`);
@@ -601,11 +543,9 @@
       }
     });
     // 이미 편성된 근무도 새 이름으로 바꾼다
-    Object.values(S.schedule).forEach((day) =>
-      Object.keys(day).forEach((s) => {
-        if (day[s] === from) day[s] = to;
-      }),
-    );
+    Object.keys(S.schedule).forEach((k) => {
+      if (S.schedule[k] === from) S.schedule[k] = to;
+    });
   };
   $("member_form").onsubmit = (e) => {
     e.preventDefault();
